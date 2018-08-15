@@ -17,29 +17,29 @@ The library provides an opportunity to work via [different transports](https://c
 
 ## GoogleIoTCore.MqttTransport Class ##
 
-### Constructor: GoogleIoTCore.MqttTransport(*[configuration]*) ###
+### Constructor: GoogleIoTCore.MqttTransport(*[options]*) ###
 
 This method returns a new GoogleIoTCore.MqttTransport instance.
 
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
-| [*configuration*](#configuration) | Table | Optional | Key-value table with settings. |
+| [*options*](#options) | Table | Optional | Key-value table with settings. |
 
-#### Configuration ####
+#### Options ####
 
-These settings affect the transport's behavior and the operations.
+These settings affect the transport's behavior and the operations. Every setting is optional and has a default.
 
-| Key (String) | Value Type | Required? | Default | Description |
-| --- | --- | --- | --- | --- |
-| "url" | String | Optional | `ssl://mqtt.googleapis.com:8883` | MQTT broker URL formatted as `ssl://<hostname>:<port>`. |
-| "qos" | Integer | Optional | 0 | MQTT QoS. [Google IoT Core supports QoS 0 and 1 only](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#quality_of_service_qos). |
-| "keepAlive" | Integer | Optional | 60 | Keep-alive MQTT parameter. For more information, see [here](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#keep-alive). |
+| Key (String) | Value Type | Default | Description |
+| --- | --- | --- | --- |
+| "url" | String | `ssl://mqtt.googleapis.com:8883` | MQTT broker URL formatted as `ssl://<hostname>:<port>`. |
+| "qos" | Integer | 0 | MQTT QoS. [Google IoT Core supports QoS 0 and 1 only](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#quality_of_service_qos). |
+| "keepAlive" | Integer | 60 | Keep-alive MQTT parameter. For more information, see [here](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#keep-alive). |
 
 **Note**: TODO place some general info about MQTT in Google IoT Core?
 
 ## GoogleIoTCore.Client Class ##
 
-### Constructor: GoogleIoTCore.Client(*projectId, cloudRegion, registryId, deviceId, privateKey[, configuration[, onConnected[, onDisconnected]]]*) ###
+### Constructor: GoogleIoTCore.Client(*projectId, cloudRegion, registryId, deviceId, privateKey[, options[, onConnected[, onDisconnected]]]*) ###
 
 This method returns a new GoogleIoTCore.Client instance.
 
@@ -50,7 +50,7 @@ This method returns a new GoogleIoTCore.Client instance.
 | *registryId* | String | Yes | [Registry ID](https://cloud.google.com/iot/docs/requirements?hl=ru#permitted_characters_and_size_requirements). |
 | *deviceId* | String | Yes | [Device ID](https://cloud.google.com/iot/docs/requirements?hl=ru#permitted_characters_and_size_requirements). |
 | *privateKey* | String | Yes | [Private key](https://cloud.google.com/iot/docs/how-tos/credentials/keys?hl=ru). |
-| [*configuration*](#configuration-1) | Table | Optional | Key-value table with settings. There are required and optional settings. |
+| [*options*](#options-1) | Table | Optional | Key-value table with settings. There are required and optional settings. |
 | [*onConnected*](#callback-onconnectederror) | Function | Optional | Callback called every time the client is connected. |
 | [*onDisconnected*](#callback-ondisconnectederror) | Function | Optional | Callback called every time the client is disconnected. |
 
@@ -74,14 +74,14 @@ This is a good place to call the [connect()](#connect) method again if it was an
 | --- | --- | --- |
 | *error* | Integer | `0` if the disconnection was caused by the disconnect() method, an [error code](TODO) which explains a reason of the disconnection otherwise. |
 
-#### Configuration ####
+#### Options ####
 
-These settings affect the client's behavior and the operations.
+These settings affect the client's behavior and the operations. Every setting is optional and has a default.
 
-| Key (String) | Value Type | Required? | Default | Description |
-| --- | --- | --- | --- | --- |
-| "maxPendingSetStateRequests" | Integer | Optional | 3 | Maximum amount of pending [Set State operations](TODO). |
-| "maxPendingPublishTelemetryRequests" | Integer | Optional | 3 | Maximum amount of pending [Publish Telemetry operations](TODO). |
+| Key (String) | Value Type | Default | Description |
+| --- | --- | --- | --- |
+| "maxPendingSetStateRequests" | Integer | 3 | Maximum amount of pending [Set State operations](TODO). |
+| "maxPendingPublishTelemetryRequests" | Integer | 3 | Maximum amount of pending [Publish Telemetry operations](TODO). |
 
 #### Example ####
 
