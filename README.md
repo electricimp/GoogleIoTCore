@@ -35,6 +35,8 @@ These settings affect the transport's behavior and the operations. Every setting
 | "qos" | Integer | 0 | MQTT QoS. [Google IoT Core supports QoS 0 and 1 only](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#quality_of_service_qos). |
 | "keepAlive" | Integer | 60 | Keep-alive MQTT parameter. For more information, see [here](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#keep-alive). |
 
+Google IoT Core does not support the `retain` MQTT flag, so this library does not support it too.
+
 **Note**: TODO place some general info about MQTT in Google IoT Core?
 
 ## GoogleIoTCore.Client Class ##
