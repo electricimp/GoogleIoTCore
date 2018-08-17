@@ -138,7 +138,7 @@ The method returns Boolean: `true` if the client is connected, `false` otherwise
 
 TODO: should we say something about connectionless transports?
 
-### publishTelemetry(*data[, subfolder[, onDone]]*) ###
+### publishTelemetry(*data[, subfolder[, onPublished]]*) ###
 
 This method [publishes a telemetry event to Google IoT Core](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#publishing_telemetry_events).
 
@@ -148,7 +148,16 @@ The method returns nothing. A result of the operation may be obtained via the [*
 | --- | --- | --- | --- |
 | *data* | Object  | Yes | Any serializable object. |
 | *subfolder* | String  | Optional | The subfolder can be used as an event category or classification. For more information, see [here](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#publishing_telemetry_events_to_separate_pubsub_topics). |
-| *[onDone](#callback-ondoneerror)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
+| *[onPublished](#callback-onpublisheddata-error)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
+
+#### Callback: onPublished(*data, error*) #####
+
+This callback is called when the data is considered as sent or an error occurs.
+
+| Parameter | Data Type | Description |
+| --- | --- | --- |
+| *data* | Object | The original *data* passed to [publishTelemetry()](#publishtelemetrydata-subfolder-onpublished) method. |
+| *[error](#error-code)* | Integer | `0` if the operation is completed successfully, an [error code](#error-code) otherwise. |
 
 ### enableConfigurationReceiving(*onReceive[, onDone]*) ###
 
@@ -173,12 +182,20 @@ This callback is called every time [a configuration](https://cloud.google.com/io
 | --- | --- | --- |
 | *configuration* | Blob | [Configuration](https://cloud.google.com/iot/docs/concepts/devices?hl=ru#device_configuration). An arbitrary user-defined blob. |
 
+#### Callback: onDone(*error*) #####
+
+This callback is called when a method is completed.
+
+| Parameter | Data Type | Description |
+| --- | --- | --- |
+| *[error](#error-code)* | Integer | `0` if the operation is completed successfully, an [error code](#error-code) otherwise. |
+
 #### Example ####
 
 ```squirrel
 ```
 
-### reportDeviceState(*state[, onDone]*) ###
+### reportDeviceState(*state[, onReported]*) ###
 
 This method [reports a device state to Google IoT Core](https://cloud.google.com/iot/docs/how-tos/config/getting-state?hl=ru#reporting_device_state).
 
@@ -187,7 +204,16 @@ The method returns nothing. A result of the operation may be obtained via the [*
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
 | *state* | Object  | Yes | [Device state](https://cloud.google.com/iot/docs/concepts/devices?hl=ru#device_state). Any serializable object. |
-| *[onDone](#callback-ondoneerror)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
+| *[onReported](#callback-onreportedstate-error)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
+
+#### Callback: onReported(*state, error*) #####
+
+This callback is called when the state is considered as sent or an error occurs.
+
+| Parameter | Data Type | Description |
+| --- | --- | --- |
+| *state* | Object | The original *state* passed to [reportDeviceState()](#reportdevicestatestate-onreported) method. |
+| *[error](#error-code)* | Integer | `0` if the operation is completed successfully, an [error code](#error-code) otherwise. |
 
 #### Example ####
 
@@ -205,16 +231,6 @@ This method sets [*onDisconnected*](#callback-ondisconnectedreason) callback. Th
 ### setDebug(*value*) ###
 
 This method enables (*value* is `true`) or disables (*value* is `false`) the client debug output (including error logging). It is disabled by default. The method returns nothing.
-
-### Additional Info ###
-
-#### Callback: onDone(*error*) #####
-
-This callback is called when a method is completed. This is just a common description of the similar callbacks specified as an argument in several methods. An application may use different callbacks with the described signature for different methods. Or define one callback and pass it to different methods.
-
-| Parameter | Data Type | Description |
-| --- | --- | --- |
-| *[error](#error-code)* | Integer | `0` if the operation is completed successfully, an [error code](#error-code) otherwise. |
 
 ### Error Codes ###
 
