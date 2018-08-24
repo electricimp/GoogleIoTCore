@@ -146,7 +146,7 @@ The method returns nothing. A result of the operation may be obtained via the [*
 
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
-| *data* | Object  | Yes | Any serializable object. |
+| *data* | Object  | Yes | Any serializable object. TODO: make it Blob + add a hint about how to serialize any object. |
 | *subfolder* | String  | Optional | The subfolder can be used as an event category or classification. For more information, see [here](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#publishing_telemetry_events_to_separate_pubsub_topics). |
 | *[onPublished](#callback-onpublisheddata-error)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
 
@@ -203,7 +203,7 @@ The method returns nothing. A result of the operation may be obtained via the [*
 
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
-| *state* | Object  | Yes | [Device state](https://cloud.google.com/iot/docs/concepts/devices?hl=ru#device_state). Any serializable object. |
+| *state* | Object  | Yes | [Device state](https://cloud.google.com/iot/docs/concepts/devices?hl=ru#device_state). Any serializable object. TODO: make it Blob + add a hint about how to serialize any object. |
 | *[onReported](#callback-onreportedstate-error)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
 
 #### Callback: onReported(*state, error*) #####
