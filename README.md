@@ -41,7 +41,7 @@ Google IoT Core does not support the `retain` MQTT flag, so this library does no
 
 ## GoogleIoTCore.Client Class ##
 
-### Constructor: GoogleIoTCore.Client(*projectId, cloudRegion, registryId, deviceId, privateKey[, options[, onConnected[, onDisconnected]]]*) ###
+### Constructor: GoogleIoTCore.Client(*projectId, cloudRegion, registryId, deviceId, privateKey[, onConnected[, onDisconnected[, options]]]*) ###
 
 This method returns a new GoogleIoTCore.Client instance.
 
@@ -52,9 +52,9 @@ This method returns a new GoogleIoTCore.Client instance.
 | *registryId* | String | Yes | [Registry ID](https://cloud.google.com/iot/docs/requirements?hl=ru#permitted_characters_and_size_requirements). |
 | *deviceId* | String | Yes | [Device ID](https://cloud.google.com/iot/docs/requirements?hl=ru#permitted_characters_and_size_requirements). |
 | *privateKey* | String | Yes | [Private key](https://cloud.google.com/iot/docs/how-tos/credentials/keys?hl=ru). |
-| [*options*](#options-1) | Table | Optional | Key-value table with settings. |
 | [*onConnected*](#callback-onconnectederror) | Function | Optional | Callback called every time the client is connected. |
 | [*onDisconnected*](#callback-ondisconnectederror) | Function | Optional | Callback called every time the client is disconnected. |
+| [*options*](#options-1) | Table | Optional | Key-value table with settings. |
 
 #### Callback: onConnected(*error*) ####
 
