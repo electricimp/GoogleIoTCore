@@ -52,7 +52,7 @@ This method returns a new GoogleIoTCore.Client instance.
 | *registryId* | String | Yes | [Registry ID](https://cloud.google.com/iot/docs/requirements?hl=ru#permitted_characters_and_size_requirements). |
 | *deviceId* | String | Yes | [Device ID](https://cloud.google.com/iot/docs/requirements?hl=ru#permitted_characters_and_size_requirements). |
 | *privateKey* | String | Yes | [Private key](https://cloud.google.com/iot/docs/how-tos/credentials/keys?hl=ru). |
-| [*options*](#options-1) | Table | Optional | Key-value table with settings. There are required and optional settings. |
+| [*options*](#options-1) | Table | Optional | Key-value table with settings. |
 | [*onConnected*](#callback-onconnectederror) | Function | Optional | Callback called every time the client is connected. |
 | [*onDisconnected*](#callback-ondisconnectederror) | Function | Optional | Callback called every time the client is disconnected. |
 
