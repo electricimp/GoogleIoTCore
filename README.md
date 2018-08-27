@@ -101,7 +101,7 @@ These settings affect the client's behavior and the operations. Every setting is
 #require "GoogleIoTCore.agent.lib.nut:1.0.0"
 ```
 
-### registerDevice(*iss, secret, publicKey[, onRegistered]*) ###
+### register(*iss, secret, publicKey[, onRegistered]*) ###
 
 This method registers a device in Google IoT Core.
 
@@ -150,7 +150,7 @@ This method checks if the client is connected to Google IoT Core.
 
 The method returns Boolean: `true` if the client is connected, `false` otherwise.
 
-### publishTelemetry(*data[, subfolder[, onPublished]]*) ###
+### publish(*data[, subfolder[, onPublished]]*) ###
 
 This method [publishes a telemetry event to Google IoT Core](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#publishing_telemetry_events).
 
@@ -168,14 +168,12 @@ This callback is called when the data is considered as sent or an error occurs.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
-| *data* | String or Blob | The original *data* passed in to the [publishTelemetry()](#publishtelemetrydata-subfolder-onpublished) method. |
+| *data* | String or Blob | The original *data* passed in to the [publish()](#publishdata-subfolder-onpublished) method. |
 | *[error](#error-code)* | Integer | `0` if the operation is completed successfully, an [error code](#error-code) otherwise. |
 
-### enableConfigurationReceiving(*onReceive[, onDone]*) ###
+### enableCfgReceiving(*onReceive[, onDone]*) ###
 
 This method enables [configuration receiving from Google IoT Core](https://cloud.google.com/iot/docs/how-tos/config/configuring-devices?hl=ru).
-
-The method works only for [MQTT transport](#googleiotcoremqtttransport-class).
 
 To enable the feature, specify the [*onReceive*](TODO) callback. To disable the feature, specify `null` as that callback.
 
@@ -207,7 +205,7 @@ This callback is called when a method is completed.
 ```squirrel
 ```
 
-### reportDeviceState(*state[, onReported]*) ###
+### reportState(*state[, onReported]*) ###
 
 This method [reports a device state to Google IoT Core](https://cloud.google.com/iot/docs/how-tos/config/getting-state?hl=ru#reporting_device_state).
 
@@ -224,7 +222,7 @@ This callback is called when the state is considered as sent or an error occurs.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
-| *state* | String or Blob | The original *state* passed in to the [reportDeviceState()](#reportdevicestatestate-onreported) method. |
+| *state* | String or Blob | The original *state* passed in to the [reportState()](#reportstatestate-onreported) method. |
 | *[error](#error-code)* | Integer | `0` if the operation is completed successfully, an [error code](#error-code) otherwise. |
 
 #### Example ####
