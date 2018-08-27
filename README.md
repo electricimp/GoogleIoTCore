@@ -107,6 +107,8 @@ This method registers a device in Google IoT Core.
 
 The method attempts to find already existing device with the device ID specified in the client’s constructor and compare that device’s public key with the key passed in. If no device found, the method tries to create one. If any device is found and keys are identical, the method succeeds. Otherwise, the method returns an error.
 
+**If you are going to use this method, add** `#require "OAuth2.agent.lib.nut:2.0.0"` **to the top of your agent code**.
+
 The method returns nothing. A result of the operation may be obtained via the [*onDone*](#callback-ondoneerror) callback if specified in this method.
 
 | Parameter | Data Type | Required? | Description |
