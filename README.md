@@ -15,6 +15,18 @@ The library provides an opportunity to work via [different transports](https://c
 
 ## Library Usage ##
 
+### Automatic JWT Token Refreshing ###
+
+TODO
+
+### Pending Requests ###
+
+TODO
+
+### Production Flow ###
+
+TODO
+
 ## GoogleIoTCore.MqttTransport Class ##
 
 ### Constructor: GoogleIoTCore.MqttTransport(*[options]*) ###
@@ -60,8 +72,6 @@ This method returns a new GoogleIoTCore.Client instance.
 
 This callback is called every time the client is connected.
 
-TODO: should we say something about connectionless transports?
-
 | Parameter | Data Type | Description |
 | --- | --- | --- |
 | *error* | Integer | `0` if the connection is successful, an [error code](TODO) otherwise. |
@@ -91,7 +101,7 @@ These settings affect the client's behavior and the operations. Every setting is
 #require "GoogleIoTCore.agent.lib.nut:1.0.0"
 ```
 
-### registerDevice(*iss, secret, publicKey[, onDone]*) ###
+### registerDevice(*iss, secret, publicKey[, onRegistered]*) ###
 
 This method registers a device in Google IoT Core.
 
@@ -104,13 +114,19 @@ The method returns nothing. A result of the operation may be obtained via the [*
 | *iss* | String  | Yes | JWT issuer. |
 | *secret* | String  | Yes | JWT sign secret key. |
 | *publicKey* | String  | Yes | [Public key](https://cloud.google.com/iot/docs/how-tos/credentials/keys?hl=ru) for a new device. |
-| *[onDone](#callback-ondoneerror)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
+| *[onRegistered](#callback-onregisterederror)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
+
+#### Callback: onRegistered(*error*) #####
+
+This callback is called when the data is considered as sent or an error occurs.
+
+| Parameter | Data Type | Description |
+| --- | --- | --- |
+| *[error](#error-code)* | Integer | `0` if the operation is completed successfully, an [error code](#error-code) otherwise. |
 
 ### connect(*[transport]*) ###
 
 This method opens a connection to Google IoT Core.
-
-For connectionless transports, like HTTP, immediately calls the onConnected callback (if specified in the client's constructor) with successful result.
 
 Default transport is [GoogleIoTCore.MqttTransport](#googleiotcoremqtttransport-class) with default configuration.
 
@@ -126,8 +142,6 @@ The method returns nothing. A result of the operation may be obtained via the [*
 
 This method closes the connection to Google IoT Core. Does nothing if the connection is already closed.
 
-For connectionless transports, like HTTP, immediately calls the [*onDisconnected*](#callback-ondisconnectederror) callback (if specified) with no errors.
-
 The method returns nothing. When the disconnection is completed the [*onDisconnected*](#callback-ondisconnectederror) callback is called, if specified in the client's constructor or set by calling [setOnDisconnected()](#setondisconnectedcallback) method.
 
 ### isConnected() ###
@@ -135,8 +149,6 @@ The method returns nothing. When the disconnection is completed the [*onDisconne
 This method checks if the client is connected to Google IoT Core.
 
 The method returns Boolean: `true` if the client is connected, `false` otherwise.
-
-TODO: should we say something about connectionless transports?
 
 ### publishTelemetry(*data[, subfolder[, onPublished]]*) ###
 
@@ -146,7 +158,7 @@ The method returns nothing. A result of the operation may be obtained via the [*
 
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
-| *data* | Object  | Yes | Any serializable object. TODO: make it Blob + add a hint about how to serialize any object. |
+| *data* | String or Blob  | Yes | Application specific data. You can use the [Serializer](https://developer.electricimp.com/libraries/utilities/serializer) library to convert Squirrel objects to Blobs. |
 | *subfolder* | String  | Optional | The subfolder can be used as an event category or classification. For more information, see [here](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#publishing_telemetry_events_to_separate_pubsub_topics). |
 | *[onPublished](#callback-onpublisheddata-error)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
 
@@ -156,7 +168,7 @@ This callback is called when the data is considered as sent or an error occurs.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
-| *data* | Object | The original *data* passed to [publishTelemetry()](#publishtelemetrydata-subfolder-onpublished) method. |
+| *data* | String or Blob | The original *data* passed in to the [publishTelemetry()](#publishtelemetrydata-subfolder-onpublished) method. |
 | *[error](#error-code)* | Integer | `0` if the operation is completed successfully, an [error code](#error-code) otherwise. |
 
 ### enableConfigurationReceiving(*onReceive[, onDone]*) ###
@@ -203,7 +215,7 @@ The method returns nothing. A result of the operation may be obtained via the [*
 
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
-| *state* | Object  | Yes | [Device state](https://cloud.google.com/iot/docs/concepts/devices?hl=ru#device_state). Any serializable object. TODO: make it Blob + add a hint about how to serialize any object. |
+| *state* | String or Blob  | Yes | [Device state](https://cloud.google.com/iot/docs/concepts/devices?hl=ru#device_state). Application specific data. You can use the [Serializer](https://developer.electricimp.com/libraries/utilities/serializer) library to convert Squirrel objects to Blobs. |
 | *[onReported](#callback-onreportedstate-error)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
 
 #### Callback: onReported(*state, error*) #####
@@ -212,7 +224,7 @@ This callback is called when the state is considered as sent or an error occurs.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
-| *state* | Object | The original *state* passed to [reportDeviceState()](#reportdevicestatestate-onreported) method. |
+| *state* | String or Blob | The original *state* passed in to the [reportDeviceState()](#reportdevicestatestate-onreported) method. |
 | *[error](#error-code)* | Integer | `0` if the operation is completed successfully, an [error code](#error-code) otherwise. |
 
 #### Example ####
@@ -240,10 +252,9 @@ An *Integer* error code which specifies a concrete error (if any) happened durin
 | --- | --- | --- |
 | 1000 | GOOGLE_IOT_CORE_ERROR_NOT_CONNECTED | The client is not connected. |
 | 1001 | GOOGLE_IOT_CORE_ERROR_ALREADY_CONNECTED | The client is already connected. |
-| 1002 | GOOGLE_IOT_CORE_ERROR_NOT_ENABLED | The feature is not enabled. |
-| 1003 | GOOGLE_IOT_CORE_ERROR_ALREADY_ENABLED | The feature is already enabled. |
-| 1004 | GOOGLE_IOT_CORE_ERROR_OP_NOT_ALLOWED_NOW | The operation is not allowed now. E.g. the same operation is already in process. |
-| 1005 | GOOGLE_IOT_CORE_ERROR_ALREADY_REGISTERED | Another device is already registered with the same Device ID. |
+| 1002 | GOOGLE_IOT_CORE_ERROR_OP_NOT_ALLOWED_NOW | The operation is not allowed now. E.g. the same operation is already in process. |
+| 1003 | GOOGLE_IOT_CORE_ERROR_TOKEN_REFRESHING | An error occured while [refreshing the token](TODO). This error code can only be passed in to the [*onDisconnected*](TODO) callback. |
+| 1004 | GOOGLE_IOT_CORE_ERROR_ALREADY_REGISTERED | Another device is already registered with the same Device ID. |
 | 1010 | GOOGLE_IOT_CORE_ERROR_GENERAL | General error. |
 
 ## Examples ##
