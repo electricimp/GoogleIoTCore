@@ -36,12 +36,7 @@ class GoogleIoTCore {
 
     static VERSION = "1.0.0";
 
-    _debugEnabled   = false;
-
-    _projectId      = null;
-    _cloudRegion    = null;
-    _registryId     = null;
-    _deviceId       = null;
+    _debug   = false;
 
     // Metafunction to return class name when typeof <instance> is run
     function _typeof() {
@@ -50,14 +45,14 @@ class GoogleIoTCore {
 
     // Information level logger
     function _log(txt) {
-        if (_debugEnabled) {
+        if (_debug) {
             server.log("[" + (typeof this) + "] " + txt);
         }
     }
 
     // Error level logger
     function _logError(txt) {
-        if (_debugEnabled) {
+        if (_debug) {
             server.error("[" + (typeof this) + "] " + txt);
         }
     }
@@ -66,6 +61,10 @@ class GoogleIoTCore {
 
 class GoogleIoTCore.Client extends GoogleIoTCore {
 
+    _projectId          = null;
+    _cloudRegion        = null;
+    _registryId         = null;
+    _deviceId           = null;
     _privateKey         = null;
 
     _onConnectedCb      = null;
@@ -108,9 +107,7 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
                 options = null) {
         const DEFAULT_SET_STATE_PARAL_REQS      = 3;
         const DEFAULT_PUB_TELEMETRY_PARAL_REQS  = 3;
-
-        // TODO: Add this as option?
-        const TOKEN_EXPIRATION_TIME             = 3600;
+        const DEFAULT_TOKEN_TTL                 = 3600;
 
         _projectId          = projectId;
         _cloudRegion        = cloudRegion;
@@ -122,7 +119,8 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
 
         _options = {
             "maxPendingSetStateRequests" : DEFAULT_SET_STATE_PARAL_REQS,
-            "maxPendingPublishTelemetryRequests" : DEFAULT_PUB_TELEMETRY_PARAL_REQS
+            "maxPendingPublishTelemetryRequests" : DEFAULT_PUB_TELEMETRY_PARAL_REQS,
+            "tokenTTL" : DEFAULT_TOKEN_TTL
         };
 
         if (options != null) {
@@ -200,9 +198,7 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
     // Parameters:
     //     transport :                  Instance of GoogleIoTCore.*Transport class.
     //              GoogleIoTCore.*Transport
-    //          (optional)              The callback signature:
-    //                                  onRegistered(error), where
-    //                                      error : Integer     0 if the operation is completed successfully, an error code otherwise.
+    //          (optional)
     //
     // Returns:                         Nothing.
     function connect(transport = null) {
@@ -214,13 +210,15 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
         if (transport == null) {
             _defaultTransport = _defaultTransport != null ? _defaultTransport : GoogleIoTCore.MqttTransport();
             _transport = _defaultTransport;
+        } else {
+            _transport = transport;
         }
 
         _transport._setClient(this);
         _transport._setTokenMaker(_makeJwtToken.bindenv(this));
         _transport._setOnConnected(_onConnected.bindenv(this));
         _transport._setOnDisconnected(_onDisconnected.bindenv(this));
-        _transport._setDebug(_debugEnabled);
+        _transport._setDebug(_debug);
         _transport._connect();
     }
 
@@ -277,7 +275,7 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
     // Returns:                         Nothing.
     function enableCfgReceiving(onReceive, onDone = null) {
         if (_transport == null) {
-            onDone && onDone(data, GOOGLE_IOT_CORE_ERROR_NOT_CONNECTED);
+            onDone && onDone(GOOGLE_IOT_CORE_ERROR_NOT_CONNECTED);
             return;
         }
         _transport._enableCfgReceiving(onReceive, onDone);
@@ -331,8 +329,8 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
     }
 
     function setDebug(value) {
-        _debugEnabled = value;
-        _transport && _transport._setDebug(_debugEnabled);
+        _debug = value;
+        _transport && _transport._setDebug(_debug);
     }
     // -------------------- PRIVATE METHODS -------------------- //
 
@@ -434,7 +432,7 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
     function _makeJwtToken(tokenReadyCb) {
         local header = http.base64encode("{\"alg\":\"RS256\",\"typ\":\"JWT\"}");
         local curTime = time();
-        local expTime = curTime + TOKEN_EXPIRATION_TIME;
+        local expTime = curTime + _options.tokenTTL;
         local claimset = {
             "aud"   : _projectId,
             "exp"   : expTime,
@@ -527,7 +525,7 @@ class GoogleIoTCore.AbstractTransport extends GoogleIoTCore {
     }
 
     function _setDebug(value) {
-        _debugEnabled = value;
+        _debug = value;
     }
 
     function _setClient(client) {
@@ -653,7 +651,7 @@ class GoogleIoTCore.MqttTransport extends GoogleIoTCore.AbstractTransport {
     function _disconnect(reason = null) {
         if ((!_stateDisconnected || _stateConnecting) && !_stateDisconnecting) {
             _stateDisconnecting = true;
-            _mqttclient.disconnect(function () {_onDisconnected(reason);}.bindenv(this));
+            _mqttclient.disconnect(function() {_onDisconnected(reason);}.bindenv(this));
         } else {
             _logError("Client is already disconnected or disconnecting");
         }
@@ -975,7 +973,7 @@ class GoogleIoTCore.MqttTransport extends GoogleIoTCore.AbstractTransport {
         try {
             message = msg["message"];
             topic = msg["topic"];
-            if (_debugEnabled) {
+            if (_debug) {
                 _log(format("_onMessage: topic=%s | body=%s", topic, message.tostring()));
             }
         } catch (e) {
