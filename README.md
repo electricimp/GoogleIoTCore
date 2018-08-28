@@ -94,6 +94,7 @@ These settings affect the client's behavior and the operations. Every setting is
 | --- | --- | --- | --- |
 | "maxPendingSetStateRequests" | Integer | 3 | Maximum amount of pending [Set State operations](TODO). |
 | "maxPendingPublishTelemetryRequests" | Integer | 3 | Maximum amount of pending [Publish Telemetry operations](TODO). |
+| "tokenTTL" | Integer | 3600 | [JWT token's time to live](TODO), in seconds. |
 
 #### Example ####
 
