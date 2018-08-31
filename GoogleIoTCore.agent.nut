@@ -36,30 +36,11 @@ class GoogleIoTCore {
 
     static VERSION = "1.0.0";
 
-    _debug   = false;
-
-    // Metafunction to return class name when typeof <instance> is run
-    function _typeof() {
-        return "GoogleIoTCore";
-    }
-
-    // Information level logger
-    function _log(txt) {
-        if (_debug) {
-            server.log("[" + (typeof this) + "] " + txt);
-        }
-    }
-
-    // Error level logger
-    function _logError(txt) {
-        if (_debug) {
-            server.error("[" + (typeof this) + "] " + txt);
-        }
-    }
-
 }
 
 class GoogleIoTCore.Client extends GoogleIoTCore {
+
+    _debug              = false;
 
     _projectId          = null;
     _cloudRegion        = null;
@@ -352,6 +333,7 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
         local client = OAuth2.JWTProfile.Client(OAuth2.DeviceFlow.GOOGLE, config);
 
         // TODO: Fix it in the OAuth lib and remove this line
+        // TODO: Also remove direct "server.log" calls in that lib
         client._debug = false;
 
         // Starting procedure of access token acquisition
@@ -475,94 +457,52 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
         return null;
     }
 
+    // Information level logger
+    function _log(txt) {
+        if (_debug) {
+            server.log("[" + (typeof this) + "] " + txt);
+        }
+    }
+
+    // Error level logger
+    function _logError(txt) {
+        // TODO: use this method only for critical errors
+        if (_debug) {
+            server.error("[" + (typeof this) + "] " + txt);
+        }
+    }
+
     function _typeof() {
         return "GoogleIoTCore.Client";
     }
 }
 
-class GoogleIoTCore.AbstractTransport extends GoogleIoTCore {
+class GoogleIoTCore.MqttTransport {
 
-    _options            = null;
-
-    _client             = null;
-
-    // Function. Should return a table with jwtToken and expiresAt fields
-    _makeToken          = null;
-
-    _jwtToken           = null;
-    _jwtExpiresAt       = null;
-
-    function _connect() {
-        throw "This method is not implemented";
-    }
-
-    function _disconnect() {
-        throw "This method is not implemented";
-    }
-
-    function _isConnected() {
-        throw "This method is not implemented";
-    }
-
-    function _publish(data, subfolder, onPublished) {
-        throw "This method is not implemented";
-    }
-
-    function _enableCfgReceiving(onReceive, onDone) {
-        throw "This method is not implemented";
-    }
-
-    function _reportState(state, onReported) {
-        throw "This method is not implemented";
-    }
-
-    function _setOnConnected(callback) {
-        throw "This method is not implemented";
-    }
-
-    function _setOnDisconnected(callback) {
-        throw "This method is not implemented";
-    }
-
-    function _setDebug(value) {
-        _debug = value;
-    }
-
-    function _setClient(client) {
-        _client = client;
-    }
-
-    function _setTokenMaker(maker) {
-        _makeToken = maker;
-    }
-
-    function _updateToken(callback) {
-        if (_makeToken == null) {
-            throw "Token maker is not set";
-        }
-
-        local tokenMade = function (token) {
-            _jwtToken = token.jwtToken;
-            _jwtExpiresAt = token.jwtExpiresAt;
-            callback();
-        }.bindenv(this);
-        _makeToken(tokenMade);
-    }
-}
-
-class GoogleIoTCore.MqttTransport extends GoogleIoTCore.AbstractTransport {
+    _debug                  = false;
 
     _stateDisconnected      = true;
     _stateDisconnecting     = false;
     _stateConnected         = false;
     _stateConnecting        = false;
-    _stateEnablingCfg       = false;
+    // Indicates that we are subscribing to configurtion updates
+    _stateSubscribing       = false;
     _stateRefreshingToken   = false;
 
     _mqttclient             = null;
     _mqttClientId           = null;
     _mqttCreds              = null;
     _msgOptions             = null;
+
+    _options                = null;
+
+    _client                 = null;
+
+    // Function. Should return a table with jwtToken and expiresAt fields
+    _makeToken              = null;
+
+    _jwtToken               = null;
+    _jwtExpiresAt           = null;
 
     _onConnectedCb          = null;
     _onDisconnectedCb       = null;
@@ -695,11 +635,12 @@ class GoogleIoTCore.MqttTransport extends GoogleIoTCore.AbstractTransport {
         mqttMsg.sendasync(msgSentCb);
     }
 
+    // TODO: rename to subscribeXXXXXXXXX?
     function _enableCfgReceiving(onReceive, onDone) {
         local enabled = _onConfigCb != null;
         local disable = onReceive == null;
 
-        if (!_readyToEnable(_stateEnablingCfg, enabled, disable, onDone)) {
+        if (!_readyToEnable(_stateSubscribing, enabled, disable, onDone)) {
             return;
         }
 
@@ -715,9 +656,9 @@ class GoogleIoTCore.MqttTransport extends GoogleIoTCore.AbstractTransport {
         }
 
         local doneCb = function (err) {
-            if (_stateEnablingCfg) {
+            if (_stateSubscribing) {
                 _onConfigEnabledCb = null;
-                _stateEnablingCfg = false;
+                _stateSubscribing = false;
                 if (err == 0) {
                     _onConfigCb = onReceive;
                 }
@@ -728,7 +669,7 @@ class GoogleIoTCore.MqttTransport extends GoogleIoTCore.AbstractTransport {
 
         local topic = _topics.configuration;
         _onConfigEnabledCb = onDone;
-        _stateEnablingCfg = true;
+        _stateSubscribing = true;
 
         if (disable) {
             _mqttclient.unsubscribe(topic, doneCb);
@@ -781,14 +722,6 @@ class GoogleIoTCore.MqttTransport extends GoogleIoTCore.AbstractTransport {
 
     function _setOnDisconnected(callback) {
         _onDisconnectedCb = callback;
-    }
-
-    function _setClient(client) {
-        base._setClient(client);
-        _initTopics();
-        _mqttClientId = format("projects/%s/locations/%s/registries/%s/devices/%s",
-                                client._projectId, client._cloudRegion,
-                                client._registryId, client._deviceId);
     }
 
     function _onConnected(err) {
@@ -872,7 +805,7 @@ class GoogleIoTCore.MqttTransport extends GoogleIoTCore.AbstractTransport {
     }
 
     function _isBusy() {
-        if (_pubTelemetryReqs.len() > 0 || _reportStateReqs.len() > 0 || _stateEnablingCfg || _stateRefreshingToken) {
+        if (_pubTelemetryReqs.len() > 0 || _reportStateReqs.len() > 0 || _stateSubscribing || _stateRefreshingToken) {
             return true;
         }
         return false;
@@ -933,7 +866,7 @@ class GoogleIoTCore.MqttTransport extends GoogleIoTCore.AbstractTransport {
         _stateDisconnecting     = false;
         _stateConnected         = false;
         _stateConnecting        = false;
-        _stateEnablingCfg       = false;
+        _stateSubscribing       = false;
         _stateRefreshingToken   = false;
 
         _refreshingPaused       = false;
@@ -991,9 +924,53 @@ class GoogleIoTCore.MqttTransport extends GoogleIoTCore.AbstractTransport {
         _onConfigCb && _onConfigCb(message);
     }
 
+    function _setDebug(value) {
+        _debug = value;
+    }
+
+    function _setClient(client) {
+        _client = client;
+        _initTopics();
+        _mqttClientId = format("projects/%s/locations/%s/registries/%s/devices/%s",
+                                client._projectId, client._cloudRegion,
+                                client._registryId, client._deviceId);
+    }
+
+    function _setTokenMaker(maker) {
+        _makeToken = maker;
+    }
+
+    function _updateToken(callback) {
+        if (_makeToken == null) {
+            throw "Token maker is not set";
+        }
+
+        local tokenMade = function (token) {
+            _jwtToken = token.jwtToken;
+            _jwtExpiresAt = token.jwtExpiresAt;
+            callback();
+        }.bindenv(this);
+        _makeToken(tokenMade);
+    }
+
     function _logMsg(message, topic) {
         local text = format("===BEGIN MQTT MESSAGE===\nTopic: %s\nMessage: %s\n===END MQTT MESSAGE===", topic, message);
         _log(text);
+    }
+
+    // Information level logger
+    function _log(txt) {
+        if (_debug) {
+            server.log("[" + (typeof this) + "] " + txt);
+        }
+    }
+
+    // Error level logger
+    function _logError(txt) {
+        // TODO: use this method only for critical errors
+        if (_debug) {
+            server.error("[" + (typeof this) + "] " + txt);
+        }
     }
 
     function _typeof() {
