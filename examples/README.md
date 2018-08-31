@@ -45,21 +45,24 @@ See [ManualRegister Example Setup and Run](#manualregister-example-setup-and-run
 
 7. Copy the [AutoRegister example source code](./AutoRegister.agent.nut) and paste it into the IDE as the agent code.
 
-8. Set *AZURE_DEVICE_CONN_STRING* constant in the agent example code to the **Device Connection String** you obtained and saved earlier.
-The value should look like `HostName=<Host Name>;DeviceId=<Device Name>;SharedAccessKey=<Device Key>`.
+8. Set constants in the agent example code:
+ - *GOOGLE_IOT_CORE_PROJECT_ID*: example-project
+ - *GOOGLE_IOT_CORE_CLOUD_REGION*: us-central1
+ - *GOOGLE_IOT_CORE_REGISTRY_ID*: example-registry
+ - *GOOGLE_IOT_CORE_DEVICE_ID*: example-device
+ - Follow [these instructions](https://github.com/electricimp/OAuth-2.0/tree/master/examples#setting-up-google-oauth2-for-service-accounts) to set *GOOGLE_ISS* and *GOOGLE_SECRET_KEY* constants
+ - *PUBLIC_KEY_URL*: TODO
+ - *PRIVATE_KEY_URL*: TODO
+ 
+ **Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance to your data.
 
-![MessagesSetConst](./example_imgs/MessagesSetConst.png)
+![AutoRegisterSetConst](./example_imgs/AutoRegisterSetConst.png)
 
 9. Click **Build and Force Restart**.
 
-10. Check from the logs in the IDE that messages are successfully sent from the device (periodically)
+10. Check from the logs in the IDE that telemetry events are successfully sent from the device (periodically)
 
-![SendMessagesLogs](./example_imgs/SendMessagesLogs.png)
-
-11. [Send Message To Device](#send-message-to-device) from the Azure Portal and check from the logs in the IDE that the message is received successfully
-
-![ReceiveMessagesLogs](./example_imgs/ReceiveMessagesLogs.png)
-
+![AutoRegisterLogs](./example_imgs/SendMessagesLogs.png)
 
 ### ManualRegister Example Setup and Run ###
 
