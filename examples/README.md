@@ -51,8 +51,8 @@ See [ManualRegister Example Setup and Run](#manualregister-example-setup-and-run
  - *GOOGLE_IOT_CORE_REGISTRY_ID*: example-registry
  - *GOOGLE_IOT_CORE_DEVICE_ID*: example-device
  - Follow [these instructions](https://github.com/electricimp/OAuth-2.0/tree/master/examples#setting-up-google-oauth2-for-service-accounts) to set *GOOGLE_ISS* and *GOOGLE_SECRET_KEY* constants
- - *PUBLIC_KEY_URL*: TODO (use the link for raw public_key.pem)
- - *PRIVATE_KEY_URL*: TODO (use the link for raw private_key.pem)
+ - *PUBLIC_KEY_URL*: TODO (temporary link: https://raw.githubusercontent.com/ragrus-nbl/GoogleIoTCore/master/pub_key.pem)
+ - *PRIVATE_KEY_URL*: TODO (temporary link: https://raw.githubusercontent.com/ragrus-nbl/GoogleIoTCore/master/priv_key.pem)
  
  **Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance to your data.
 
