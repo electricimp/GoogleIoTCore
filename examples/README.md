@@ -51,8 +51,8 @@ See [ManualRegister Example Setup and Run](#manualregister-example-setup-and-run
  - *GOOGLE_IOT_CORE_REGISTRY_ID*: example-registry
  - *GOOGLE_IOT_CORE_DEVICE_ID*: example-device
  - Follow [these instructions](https://github.com/electricimp/OAuth-2.0/tree/master/examples#setting-up-google-oauth2-for-service-accounts) to set *GOOGLE_ISS* and *GOOGLE_SECRET_KEY* constants
- - *PUBLIC_KEY_URL*: TODO
- - *PRIVATE_KEY_URL*: TODO
+ - *PUBLIC_KEY_URL*: TODO (use the link for raw public_key.pem)
+ - *PRIVATE_KEY_URL*: TODO (use the link for raw private_key.pem)
  
  **Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance to your data.
 
@@ -66,36 +66,7 @@ See [ManualRegister Example Setup and Run](#manualregister-example-setup-and-run
 
 ### ManualRegister Example Setup and Run ###
 
-1. [Login To Azure Portal](#login-to-azure-portal)
-
-2. [Create IoT Hub Resource](#create-iot-hub-resource) (if not created yet)
-
-3. [Obtain Registry Connection String](#obtain-registry-connection-string)
-
-4. [Set up your Imp device](https://developer.electricimp.com/gettingstarted)
-
-5. In the [Electric Imp's IDE](https://impcentral.electricimp.com) create new Product and Development Device Group.
-
-6. Assign a device to the newly created Device Group.
-
-7. Copy the [Twins example source code](./Twins.agent.nut) and paste it into the IDE as the agent code.
-
-8. Set *AZURE_REGISTRY_CONN_STRING* constant in the agent example code to the **Registry Connection String** you obtained and saved earlier.
-The value should look like `HostName=<Host Name>;SharedAccessKeyName=<Key Name>;SharedAccessKey=<SAS Key>`.
-
-![TwinsSetConst](./example_imgs/TwinsSetConst.png)
-
-9. Click **Build and Force Restart**.
-
-10. Check from the logs in the IDE that the device is registered, connected, and twin's properties are retrieved
-
-![RetrieveTwinLogs](./example_imgs/RetrieveTwinLogs.png)
-
-11. [Update Twin Document](#retrieveupdate-twin-document) from the Azure Portal: add or change, if already exists, the desired property "test". Then check from the logs in the IDE that the desired properties are received and the reported properties are updated.
-
-![UpdateTwinLogs](./example_imgs/UpdateTwinLogs.png)
-
-12. In the Azure Portal, refresh the twin's document and check that the reported properties now contain the "test" property you set in the previous step.
+TODO
 
 ## Google IoT Core How To ##
 
@@ -156,16 +127,4 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
 ### Update Device Configuration ###
 
-1. In the [Azure portal](https://portal.azure.com/), open your IoT hub.
-
-2. In the IoT hub, open the device you want to send a message to.
-
-3. Click **Message To Device**.
-
- ![Device Message](./example_imgs/IoTHubSendMessageToDevice1.png)
-
-4. Type some message in the **Message Body** field. Add some properties, if needed.
-
- ![Device Explorer](./example_imgs/IoTHubSendMessageToDevice2.png)
-
-5. Click **Send Message** to send the message.
+TODO
