@@ -1,31 +1,35 @@
 # GoogleIoTCore #
 
-This library allows your agent code to work with Google IoT Core.
+This library allows your agent code to work with Google IoT Core (TODO - link).
 
-This version of the library supports the following functionality:
+This version of the library supports the following functionality: (TODO - maybe add links to Google doc in every item?)
 - Registering a device in Google IoT Core (optional feature).
 - Connecting and disconnecting to/from Google IoT Core.
 - Publishing telemetry events to Google IoT Core.
 - Receiving configurations from Google IoT Core.
 - Reporting a device state to Google IoT Core.
 
-The library provides an opportunity to work via [different transports](https://cloud.google.com/iot/docs/concepts/protocols?hl=ru), but currently supports only [MQTT transport](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru).
+The library provides an opportunity to work via [different transports](https://cloud.google.com/iot/docs/concepts/protocols), but currently supports [MQTT transport](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge) only.
 
 **To add this library to your project, add** `#require "GoogleIoTCore.agent.lib.nut:1.0.0"` **to the top of your agent code**.
 
 ## Library Usage ##
 
-### Pending Requests ###
+The library API specification is described [here](#api-specification).
 
-All requests to a remote server are made asynchronously, so several operations can be processed concurrently. But only limited number of pending operations of the same type is allowed. This number can be changed in [the client's options](TODO). If you exceed this number, the `GOOGLE_IOT_CORE_ERROR_OP_NOT_ALLOWED_NOW` error will be returned in response to your call.
+The [working examples](./examples) are provided together with the library and described [here](./examples/README.md).
 
-```
-TODO: some code?
-```
+Below sections explain the main ideas and design of the library and provide the usage recommendations.
+
+### General Concepts ??? ###
+
+TODO - some general explanation / how to (maybe part from Production Flow)
 
 ### Production Flow ###
 
-Each Google IoT Core device should have its own public and private RSA (Elliptic Curve is also supported by Google IoT Core, but not supported by EI agents) keys.
+TODO - update
+
+Each Google IoT Core device should have its own public and private RSA keys (Elliptic Curve is also supported by Google IoT Core, but is not supported by imp).
 
 Public key is saved inside the Google IoT Core platform, so it is used only when registering a device in Google IoT Core. Private key is used on the client's side when connecting to the Google IoT Core servers.
 
@@ -36,31 +40,42 @@ Then you have two options:
 
 Google [recommends](https://cloud.google.com/iot/docs/concepts/device-security#provisioning_credentials) the second way for production purposes.
 
-## MQTT Transport ##
-
 ### Automatic JWT Token Refreshing ###
 
-[JWT token](TODO) has an expiration time, so it should be updated before expiration to prevent the client from unexpected disconnection. Token updating flow is the following:
-1. Wait for all current MQTT operations to be done.
-1. Calculate a new JWT token.
-1. Disconnect from the MQTT broker.
-1. Set the new JWT token as an MQTT client's password.
-1. Connect to the MQTT broker again.
-1. Subscribe to the required topics again.
+[JWT token](TODO) has an expiration time, so it should be updated before expiration to prevent the client from unexpected disconnection. TODO - say about switching off/on.
 
-This library does these operations automatically and invisibly. All the calls made at the time of updating are scheduled in a queue and processed right after the updating flow is done.
+For MQTT Transport the client implements the following token updating algorithm:  (TODO - reformulate correctly, if needed)
+1. Using a timer wakes up when the current JWT token is near to expiration.
+1. Waits for all current MQTT operations to be finished.
+1. Calculates a new JWT token.
+1. Disconnects from the MQTT broker.
+1. Connects to the MQTT broker again using the new JWT token as an MQTT client's password.
+1. Subscribes to the topics which were subscribed to before the reconnection.
+1. Sets the timer for the new JWT token expiration.
 
-## GoogleIoTCore.MqttTransport Class ##
+The library does these operations automatically and invisibly. All the API calls, made at the time of updating, are scheduled in a queue and processed right after the token updating algorithm is successfuly finished. If the token update fails, the onDisconnected() callback is called (if the callback has been set). TODO - right?
 
-### Constructor: GoogleIoTCore.MqttTransport(*[options]*) ###
+### Pending Requests ###
+
+All requests to a remote server are made asynchronously, so several operations can be processed concurrently. But only limited number of pending operations of the same type is allowed. This number can be changed in [the client's options](TODO). If you exceed this number, the `GOOGLE_IOT_CORE_ERROR_OP_NOT_ALLOWED_NOW` error will be returned in response to your call.
+
+### Errors Processing ###
+
+TODO
+
+## API Specification ##
+
+### GoogleIoTCore.MqttTransport Class ###
+
+#### Constructor: GoogleIoTCore.MqttTransport(*[options]*) ####
 
 This method returns a new GoogleIoTCore.MqttTransport instance.
 
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
-| [*options*](#options) | Table | Optional | Key-value table with settings. |
+| [*options*](#options) | Table | Optional | Key-value table with the transport's settings. |
 
-#### Options ####
+##### Options #####
 
 These settings affect the transport's behavior and the operations. Every setting is optional and has a default.
 
@@ -68,50 +83,48 @@ These settings affect the transport's behavior and the operations. Every setting
 | --- | --- | --- | --- |
 | "url" | String | `ssl://mqtt.googleapis.com:8883` | MQTT broker URL formatted as `ssl://<hostname>:<port>`. |
 | "qos" | Integer | 0 | MQTT QoS. [Google IoT Core supports QoS 0 and 1 only](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#quality_of_service_qos). |
-| "keepAlive" | Integer | 60 | Keep-alive MQTT parameter. For more information, see [here](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#keep-alive). |
+| "keepAlive" | Integer | 60 | Keep-alive MQTT parameter, in seconds. For more information, see [here](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#keep-alive). |
 
-Google IoT Core does not support the `retain` MQTT flag, so this library does not support it too.
+Note, Google IoT Core does not support the `retain` MQTT flag.
 
-**Note**: TODO place some general info about MQTT in Google IoT Core?
+### GoogleIoTCore.Client Class ###
 
-## GoogleIoTCore.Client Class ##
-
-### Constructor: GoogleIoTCore.Client(*projectId, cloudRegion, registryId, deviceId, privateKey[, onConnected[, onDisconnected[, options]]]*) ###
+#### Constructor: GoogleIoTCore.Client(*projectId, cloudRegion, registryId, deviceId, privateKey[, onConnected[, onDisconnected[, options]]]*) ####
 
 This method returns a new GoogleIoTCore.Client instance.
 
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
-| *projectId* | String | Yes | [Project ID](https://cloud.google.com/iot/docs/requirements?hl=ru#permitted_characters_and_size_requirements). |
-| *cloudRegion* | String | Yes | [Cloud region](https://cloud.google.com/iot/docs/requirements?hl=ru#cloud_regions). |
-| *registryId* | String | Yes | [Registry ID](https://cloud.google.com/iot/docs/requirements?hl=ru#permitted_characters_and_size_requirements). |
-| *deviceId* | String | Yes | [Device ID](https://cloud.google.com/iot/docs/requirements?hl=ru#permitted_characters_and_size_requirements). |
-| *privateKey* | String | Yes | [Private key](https://cloud.google.com/iot/docs/how-tos/credentials/keys?hl=ru). |
+| *projectId* | String | Yes | [Project ID](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements). |
+| *cloudRegion* | String | Yes | [Cloud region](https://cloud.google.com/iot/docs/requirements#cloud_regions). |
+| *registryId* | String | Yes | [Registry ID](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements). |
+| *deviceId* | String | Yes | [Device ID](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements). |
+| *privateKey* | String | Yes | [Private key](https://cloud.google.com/iot/docs/how-tos/credentials/keys). |
 | [*onConnected*](#callback-onconnectederror) | Function | Optional | Callback called every time the client is connected. |
 | [*onDisconnected*](#callback-ondisconnectederror) | Function | Optional | Callback called every time the client is disconnected. |
-| [*options*](#options-1) | Table | Optional | Key-value table with settings. |
+| [*options*](#options-1) | Table | Optional | Key-value table with additional settings. |
 
-#### Callback: onConnected(*error*) ####
+##### Callback: onConnected(*error*) #####
 
 This callback is called every time the client is connected.
+
+This is a good place to call the [enableCfgReceiving()](TODO) method, if this functionality is needed.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
 | *error* | Integer | `0` if the connection is successful, an [error code](TODO) otherwise. |
 
-#### Callback: onDisconnected(*error*) ####
+##### Callback: onDisconnected(*error*) #####
 
 This callback is called every time the client is disconnected.
-
-This is a good place to call the [connect()](#connect) method again if it was an unexpected disconnection.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
 | *error* | Integer | `0` if the disconnection was caused by the disconnect() method, an [error code](TODO) which explains a reason of the disconnection otherwise. |
 
-#### Options ####
+##### Options #####
 
-These settings affect the client's behavior and the operations. Every setting is optional and has a default.
+These additional settings affect the client's behavior and the operations. Every setting is optional and has a default.
 
 | Key (String) | Value Type | Default | Description |
 | --- | --- | --- | --- |
@@ -119,40 +132,64 @@ These settings affect the client's behavior and the operations. Every setting is
 | "maxPendingPublishTelemetryRequests" | Integer | 3 | Maximum amount of pending [Publish Telemetry operations](TODO). |
 | "tokenTTL" | Integer | 3600 | [JWT token's time to live](TODO), in seconds. |
 
-#### Example ####
+TODO - add autoreconnect setting.
 
 ```squirrel
 #require "GoogleIoTCore.agent.lib.nut:1.0.0"
 ```
 
-### register(*iss, secret, publicKey[, onRegistered]*) ###
+#### setOnConnected(*callback*) ####
 
-This method registers a device in Google IoT Core.
+This method sets [*onConnected*](#callback-onconnectederror) callback. The method returns nothing.
 
-The method attempts to find already existing device with the device ID specified in the client’s constructor and compare that device’s public key with the key passed in. If no device found, the method tries to create one. If any device is found and keys are identical, the method succeeds. Otherwise, the method returns an error.
+#### setOnDisconnected(*callback*) ####
+
+This method sets [*onDisconnected*](#callback-ondisconnectedreason) callback. The method returns nothing.
+
+#### setPrivateKey() ####
+
+TODO
+
+#### register(*iss, secret, publicKey[, onRegistered]*) ####
+
+This complementary method registers the device in Google IoT Core.
+
+It makes the minimal required registration - only one private-public key pair, without expiration setting, is registered.
+
+First, the method attempts to find already existing device with the device ID specified in the client’s constructor and compare that device’s public key with the key passed in. And then:
+- If no device found, the method tries to register the new one.
+- Else if a device is found and the keys are identical, the method succeeds, assuming the device is already registered.
+- Otherwise, the method returns the error (TODO - specify concrete error).
 
 **If you are going to use this method, add** `#require "OAuth2.agent.lib.nut:2.0.0"` **to the top of your agent code**.
 
-The method returns nothing. A result of the operation may be obtained via the [*onDone*](#callback-ondoneerror) callback if specified in this method.
+The method returns nothing. A result of the operation may be obtained via the [*onRegistered*](TODO) callback if specified in this method.
 
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
-| *iss* | String  | Yes | JWT issuer. |
-| *secret* | String  | Yes | JWT sign secret key. |
-| *publicKey* | String  | Yes | [Public key](https://cloud.google.com/iot/docs/how-tos/credentials/keys?hl=ru) for a new device. |
+| *iss* | String  | Yes | JWT issuer. TODO - link |
+| *secret* | String  | Yes | JWT sign secret key.  TODO - link |
+| *publicKey* | String  | Yes | [Public key](https://cloud.google.com/iot/docs/how-tos/credentials/keys) for the device. It must correspond to the private key set for the client. |
 | *[onRegistered](#callback-onregisterederror)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
 
-#### Callback: onRegistered(*error*) #####
+TODO - how about add `name` parameter?
 
-This callback is called when the data is considered as sent or an error occurs.
+##### Callback: onRegistered(*error*) ######
+
+This callback is called when the device is registered.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
 | *[error](#error-code)* | Integer | `0` if the operation is completed successfully, an [error code](#error-code) otherwise. |
 
-### connect(*[transport]*) ###
+```squirrel
+```
+
+#### connect(*[transport]*) ####
 
 This method opens a connection to Google IoT Core.
+
+TODO - what happens if the client already connected?
 
 Default transport is [GoogleIoTCore.MqttTransport](#googleiotcoremqtttransport-class) with default configuration.
 
@@ -164,42 +201,52 @@ The method returns nothing. A result of the operation may be obtained via the [*
 | --- | --- | --- | --- |
 | *transport* | GoogleIoTCore.\*Transport  | Optional | Instance of GoogleIoTCore.\*Transport class. |
 
-### disconnect() ###
+```squirrel
+```
+
+#### disconnect() ####
 
 This method closes the connection to Google IoT Core. Does nothing if the connection is already closed.
 
 The method returns nothing. When the disconnection is completed the [*onDisconnected*](#callback-ondisconnectederror) callback is called, if specified in the client's constructor or set by calling [setOnDisconnected()](#setondisconnectedcallback) method.
 
-### isConnected() ###
+#### isConnected() ####
 
 This method checks if the client is connected to Google IoT Core.
 
 The method returns Boolean: `true` if the client is connected, `false` otherwise.
 
-### publish(*data[, subfolder[, onPublished]]*) ###
+#### publish(*data[, subfolder[, onPublished]]*) ####
 
-This method [publishes a telemetry event to Google IoT Core](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#publishing_telemetry_events).
+This method [publishes a telemetry event to Google IoT Core](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge#publishing_telemetry_events).
 
-The method returns nothing. A result of the operation may be obtained via the [*onDone*](#callback-ondoneerror) callback if specified in this method.
+The method returns nothing. A result of the operation may be obtained via the [*onPublished*](#TODO) callback if specified in this method.
 
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
-| *data* | String or Blob  | Yes | Application specific data. You can use the [Serializer](https://developer.electricimp.com/libraries/utilities/serializer) library to convert Squirrel objects to Blobs. |
-| *subfolder* | String  | Optional | The subfolder can be used as an event category or classification. For more information, see [here](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge?hl=ru#publishing_telemetry_events_to_separate_pubsub_topics). |
+| *data* | String or Blob  | Yes | Application specific data. Application can use the [Serializer](https://developer.electricimp.com/libraries/utilities/serializer) library to convert Squirrel objects to Blobs. |
+| *subfolder* | String  | Optional | The subfolder can be used as an event category or classification. For more information, see [here](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge#publishing_telemetry_events_to_separate_pubsub_topics). |
 | *[onPublished](#callback-onpublisheddata-error)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
 
-#### Callback: onPublished(*data, error*) #####
+##### Callback: onPublished(*data, error*) ######
 
-This callback is called when the data is considered as sent or an error occurs.
+This callback is called when the data is considered as published or an error occurs.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
 | *data* | String or Blob | The original *data* passed in to the [publish()](#publishdata-subfolder-onpublished) method. |
 | *[error](#error-code)* | Integer | `0` if the operation is completed successfully, an [error code](#error-code) otherwise. |
 
-### enableCfgReceiving(*onReceive[, onDone]*) ###
+TODO - data is really String or Blob? or Blob always?
 
-This method enables [configuration receiving from Google IoT Core](https://cloud.google.com/iot/docs/how-tos/config/configuring-devices?hl=ru).
+```squirrel
+```
+
+#### enableCfgReceiving(*onReceive[, onDone]*) ####
+
+This method enables/disables [configuration receiving from Google IoT Core](https://cloud.google.com/iot/docs/how-tos/config/configuring-devices).
+
+Disabled by default and after every successful [connect()](TODO) method call. TODO - right? 
 
 To enable the feature, specify the [*onReceive*](TODO) callback. To disable the feature, specify `null` as that callback.
 
@@ -210,67 +257,60 @@ The method returns nothing. A result of the operation may be obtained via the [*
 | *onReceive* | Function  | Yes | [Callback](TODO) called every time a configuration is received from Google IoT Core. `null` disables the feature. |
 | *[onDone](#callback-ondoneerror)* | Function  | Optional | [Callback](TODO) called when the operation is completed or an error occurs. |
 
-#### Callback: onReceive(*configuration*) ####
+##### Callback: onReceive(*configuration*) #####
 
 This callback is called every time [a configuration](https://cloud.google.com/iot/docs/concepts/devices?hl=ru#device_configuration) is received.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
-| *configuration* | Blob(TODO: check!) | [Configuration](https://cloud.google.com/iot/docs/concepts/devices?hl=ru#device_configuration). An arbitrary user-defined blob. |
+| *configuration* | Blob(TODO: check!) | [Configuration](https://cloud.google.com/iot/docs/concepts/devices#device_configuration). An arbitrary user-defined blob. TODO - anything about deserialize lib? |
 
-#### Callback: onDone(*error*) #####
+##### Callback: onDone(*error*) #####
 
-This callback is called when a method is completed.
+This callback is called when the method is completed.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
 | *[error](#error-code)* | Integer | `0` if the operation is completed successfully, an [error code](#error-code) otherwise. |
 
-#### Example ####
 
 ```squirrel
 ```
 
-### reportState(*state[, onReported]*) ###
+#### reportState(*state[, onReported]*) ####
 
-This method [reports a device state to Google IoT Core](https://cloud.google.com/iot/docs/how-tos/config/getting-state?hl=ru#reporting_device_state).
+This method [reports a device state to Google IoT Core](https://cloud.google.com/iot/docs/how-tos/config/getting-state#reporting_device_state).
 
-The method returns nothing. A result of the operation may be obtained via the [*onDone*](#callback-ondoneerror) callback if specified in this method.
+The method returns nothing. A result of the operation may be obtained via the [*onReported*](TODO) callback if specified in this method.
 
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
-| *state* | String or Blob  | Yes | [Device state](https://cloud.google.com/iot/docs/concepts/devices?hl=ru#device_state). Application specific data. You can use the [Serializer](https://developer.electricimp.com/libraries/utilities/serializer) library to convert Squirrel objects to Blobs. |
+| *state* | String or Blob  | Yes | [Device state](https://cloud.google.com/iot/docs/concepts/devices#device_state). Application specific data. Application can use the [Serializer](https://developer.electricimp.com/libraries/utilities/serializer) library to convert Squirrel objects to Blobs. |
 | *[onReported](#callback-onreportedstate-error)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
 
-#### Callback: onReported(*state, error*) #####
+##### Callback: onReported(*state, error*) #####
 
-This callback is called when the state is considered as sent or an error occurs.
+This callback is called when the state is considered as reported or an error occurs.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
 | *state* | String or Blob | The original *state* passed in to the [reportState()](#reportstatestate-onreported) method. |
 | *[error](#error-code)* | Integer | `0` if the operation is completed successfully, an [error code](#error-code) otherwise. |
 
-#### Example ####
+TODO - state is really String or Blob? or Blob always?
 
 ```squirrel
 ```
 
-### setOnConnected(*callback*) ###
-
-This method sets [*onConnected*](#callback-onconnectederror) callback. The method returns nothing.
-
-### setOnDisconnected(*callback*) ###
-
-This method sets [*onDisconnected*](#callback-ondisconnectedreason) callback. The method returns nothing.
-
-### setDebug(*value*) ###
+#### setDebug(*value*) ####
 
 This method enables (*value* is `true`) or disables (*value* is `false`) the client debug output (including error logging). It is disabled by default. The method returns nothing.
 
 ### Error Codes ###
 
 An *Integer* error code which specifies a concrete error (if any) happened during an operation.
+
+TODO - check it's the final list. No MQTT specific errors?
 
 | Error Code | Error Name | Description |
 | --- | --- | --- |
