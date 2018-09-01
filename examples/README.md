@@ -81,6 +81,8 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
 ![View console](./example_imgs/ViewConsole.png)
 
+**Note**: In the next steps you may be needed to use a free trial period of paid subscription.
+
 ### Create IoT Core Project ###
 
 1. In the [Google Cloud Console](https://console.cloud.google.com/iot), click **Select a project > NEW PROJECT**:
@@ -88,8 +90,6 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 ![Create IoT Core Project](./example_imgs/CreateProject1.png)
 
 ![Create IoT Core Project](./example_imgs/CreateProject2.png)
-
-**Note**: In the next steps you may be needed to use a free trial period of paid subscription.
 
 2. On the **New project** page, enter the following information for your new project:
 
@@ -109,7 +109,7 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
 ![Enable API](./example_imgs/EnableAPI.png)
 
-**Note**: If you are getting an error like *"Operation does not satisfy the following requirements: billing-enabled..."*, you probably needed to get a paid subscription or free trial.
+**Note**: If you are getting an error like *"Operation does not satisfy the following requirements: billing-enabled..."*, you probably need to get a paid subscription or free trial.
 
 2. Click **Create a device registry**:
 
