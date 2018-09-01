@@ -98,9 +98,9 @@ class AutoRegisterExample {
             server.log("Public key is loaded");
             _publicKey = pubKey;
             downloadKey(_privateKeyUrl, privKeyLoaded);
-        };
+        }.bindenv(this);
 
-        server.log("Downolading keys..");
+        server.log("Downloading keys..");
         downloadKey(_publicKeyUrl, pubKeyLoaded);
     }
 

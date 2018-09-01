@@ -481,6 +481,7 @@ class GoogleIoTCore.MqttTransport {
 
     _debug                  = false;
 
+    // TODO: replace these flags with enum
     _stateDisconnected      = true;
     _stateDisconnecting     = false;
     _stateConnected         = false;
