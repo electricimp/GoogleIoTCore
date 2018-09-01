@@ -184,6 +184,8 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
  
 4. Click **Create**.
 
+![CreateDevice](./example_imgs/CreateDevice.png)
+
 ### Update Device Configuration ###
 
 1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project
