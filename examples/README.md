@@ -37,20 +37,22 @@ See [ManualRegister Example Setup and Run](#manualregister-example-setup-and-run
 
 3. [Create Device Registry](#create-device-registry)
 
-4. [Set up your Imp device](https://developer.electricimp.com/gettingstarted)
+4. [Setup Google Service Accounts](#setup-google-service-accounts)
 
-5. In the [Electric Imp's IDE](https://impcentral.electricimp.com) create new Product and Development Device Group.
+5. [Set up your Imp device](https://developer.electricimp.com/gettingstarted)
 
-6. Assign a device to the newly created Device Group.
+6. In the [Electric Imp's IDE](https://impcentral.electricimp.com) create new Product and Development Device Group.
 
-7. Copy the [AutoRegister example source code](./AutoRegister.agent.nut) and paste it into the IDE as the agent code.
+7. Assign a device to the newly created Device Group.
 
-8. Set constants in the agent example code:
- - *GOOGLE_IOT_CORE_PROJECT_ID*: example-project
+8. Copy the [AutoRegister example source code](./AutoRegister.agent.nut) and paste it into the IDE as the agent code.
+
+9. Set constants in the agent example code:
+ - *GOOGLE_IOT_CORE_PROJECT_ID*: set the value from the step 2
  - *GOOGLE_IOT_CORE_CLOUD_REGION*: us-central1
  - *GOOGLE_IOT_CORE_REGISTRY_ID*: example-registry
- - *GOOGLE_IOT_CORE_DEVICE_ID*: example-device
- - Follow [these instructions](https://github.com/electricimp/OAuth-2.0/tree/master/examples#setting-up-google-oauth2-for-service-accounts) to set *GOOGLE_ISS* and *GOOGLE_SECRET_KEY* constants
+ - *GOOGLE_IOT_CORE_DEVICE_ID*: example-device_1
+ - *GOOGLE_ISS* and *GOOGLE_SECRET_KEY*: set the values from the step 4
  - *PUBLIC_KEY_URL*: TODO (temporary link: https://raw.githubusercontent.com/ragrus-nbl/GoogleIoTCore/master/pub_key.pem)
  - *PRIVATE_KEY_URL*: TODO (temporary link: https://raw.githubusercontent.com/ragrus-nbl/GoogleIoTCore/master/priv_key.pem)
  
@@ -58,9 +60,9 @@ See [ManualRegister Example Setup and Run](#manualregister-example-setup-and-run
 
 ![AutoRegisterSetConst](./example_imgs/AutoRegisterSetConst.png)
 
-9. Click **Build and Force Restart**.
+10. Click **Build and Force Restart**.
 
-10. Check from the logs in the IDE that telemetry events are successfully sent from the device (periodically)
+11. Check from the logs in the IDE that telemetry events are successfully sent from the device (periodically)
 
 ![AutoRegisterLogs](./example_imgs/SendMessagesLogs.png)
 
@@ -81,13 +83,13 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
 ### Create IoT Core Project ###
 
-1. In the [Azure portal](https://portal.azure.com/), click **Select a project > NEW PROJECT**:
+1. In the [Google Cloud Console](https://console.cloud.google.com/iot), click **Select a project > NEW PROJECT**:
 
 ![Create IoT Core Project](./example_imgs/CreateProject1.png)
 
 ![Create IoT Core Project](./example_imgs/CreateProject2.png)
 
-**Note**: You may be needed to use a free trial period of paid subscription.
+**Note**: In the next steps you may be needed to use a free trial period of paid subscription.
 
 2. On the **New project** page, enter the following information for your new project:
 
@@ -103,9 +105,11 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
 ### Create Device Registry ###
 
-1. On [this page](https://console.cloud.google.com/iot) choose your project and click **Enable API**:
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project and click **Enable API**:
 
 ![Enable API](./example_imgs/EnableAPI.png)
+
+**Note**: If you are getting an error like *"Operation does not satisfy the following requirements: billing-enabled..."*, you probably needed to get a paid subscription or free trial.
 
 2. Click **Create a device registry**:
 
@@ -125,6 +129,61 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
  
 ![Create a device registry](./example_imgs/CreateRegistry2.png)
 
+### Setup Google Service Accounts ###
+
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project
+
+2. Click **IAM & Admin**, then **Service Accounts** from left side menu
+
+![ServiceAccounts](./example_imgs/ServiceAccounts.png)
+
+3. Click the **Create service account** button
+
+![CreateServiceAccount](./example_imgs/CreateServiceAccount1.png)
+
+4. Enter a new service account name in the corresponding field: example-serv-acc
+
+5. From the **Role** dropdown menu, select **Cloud IoT Provisioner**
+
+6. Check the **Furnish a new private key** button. Leave all other checkboxes untouched
+
+7. Click the **Create** button
+
+![CreateServiceAccount](./example_imgs/CreateServiceAccount2.png)
+
+8. The file `<project name>-<random number>.json` will be downloaded to your computer. It will look something like this:
+
+```json
+{ "type": "service_account",
+  "project_id": "test-project",
+  "private_key_id": "27ed751da7f0cb605c02dafda6a5cf535e662aea",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMII ..... QbDgw==\n-----END PRIVATEKEY-----\n",
+  "client_email": "test-account@test-project.iam.gserviceaccount.com",
+  "client_id": "117467107027610486288",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/test-account%40@test-project.iam.gserviceaccount.com" }
+```
+
+9. Make a note of **client_email** (it is *GOOGLE_ISS*) and **private_key** (it is *GOOGLE_SECRET_KEY*) from downloaded JSON file. They will be needed to setup and run your application.
+
 ### Update Device Configuration ###
 
-TODO
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project
+
+2. Click on the registry you created in the previous steps
+
+![OpenRegistry](./example_imgs/OpenRegistry.png)
+
+3. Click on the device the configuration of which you want to update
+
+![OpenDevice](./example_imgs/OpenDevice.png)
+
+**Note**: If you don't have any devices, create one by running the [AutoRegister example](#autoregister-example) or manually.
+
+4. Click **UPDATE CONFIG**, choose **Text** format and type your new configuration:
+
+![UpdateConfig](./example_imgs/UpdateConfig.png)
+
+5. Click **SEND TO DEVICE**.
