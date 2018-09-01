@@ -64,7 +64,7 @@ See [ManualRegister Example Setup and Run](#manualregister-example-setup-and-run
 
 11. Check from the logs in the IDE that telemetry events are successfully sent from the device (periodically)
 
-![AutoRegisterLogs](./example_imgs/SendMessagesLogs.png)
+![AutoRegisterLogs](./example_imgs/AutoRegisterRun.png)
 
 ### ManualRegister Example Setup and Run ###
 
@@ -167,6 +167,22 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 ```
 
 9. Make a note of **client_email** (it is *GOOGLE_ISS*) and **private_key** (it is *GOOGLE_SECRET_KEY*) from downloaded JSON file. They will be needed to setup and run your application.
+
+### Create A Device ###
+
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project
+
+2. Click on the registry you created in the previous steps
+
+![OpenRegistry](./example_imgs/OpenRegistry.png)
+
+3. Click **Create device** and enter the following information for your new device:
+
+ - **Device ID**: example-device_2
+ - **Public key format**: RS256_X509
+ - **Public key value**: copy the public key from [here](https://raw.githubusercontent.com/ragrus-nbl/GoogleIoTCore/master/pub_key.pem)
+ 
+4. Click **Create**.
 
 ### Update Device Configuration ###
 
