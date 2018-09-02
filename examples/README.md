@@ -53,8 +53,8 @@ See [ManualRegister Example Setup and Run](#manualregister-example-setup-and-run
  - *GOOGLE_IOT_CORE_REGISTRY_ID*: example-registry
  - *GOOGLE_IOT_CORE_DEVICE_ID*: example-device_1
  - *GOOGLE_ISS* and *GOOGLE_SECRET_KEY*: set the values from the step 4
- - *PUBLIC_KEY_URL*: TODO (temporary link: https://raw.githubusercontent.com/ragrus-nbl/GoogleIoTCore/master/pub_key.pem)
- - *PRIVATE_KEY_URL*: TODO (temporary link: https://raw.githubusercontent.com/ragrus-nbl/GoogleIoTCore/master/priv_key.pem)
+ - *PUBLIC_KEY_URL*: copy [this link](./keys/pub_key.pem?raw=true)
+ - *PRIVATE_KEY_URL*: copy [this link](./keys/priv_key.pem?raw=true)
  
  **Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance to your data.
 
@@ -68,7 +68,46 @@ See [ManualRegister Example Setup and Run](#manualregister-example-setup-and-run
 
 ### ManualRegister Example Setup and Run ###
 
-TODO
+1. [Login To Google IoT Core](#login-to-google-iot-core)
+
+2. [Create IoT Core Project](#create-iot-core-project) (if not created yet)
+
+3. [Create Device Registry](#create-device-registry)
+
+4. [Create Device Manually](#create-device) or you the device created by [AutoRegister Example](#autoregister-example-setup-and-run)
+
+5. [Set up your Imp device](https://developer.electricimp.com/gettingstarted)
+
+6. In the [Electric Imp's IDE](https://impcentral.electricimp.com) create new Product and Development Device Group.
+
+7. Assign a device to the newly created Device Group.
+
+8. Copy the [ManualRegister example source code](./ManualRegister.agent.nut) and paste it into the IDE as the agent code.
+
+9. Set constants in the agent example code:
+ - *GOOGLE_IOT_CORE_PROJECT_ID*: set the value from the step 2
+ - *GOOGLE_IOT_CORE_CLOUD_REGION*: us-central1
+ - *GOOGLE_IOT_CORE_REGISTRY_ID*: example-registry
+ - *GOOGLE_IOT_CORE_DEVICE_ID*: set the value from the step 4
+ - *PRIVATE_KEY_URL*: copy [this link](./keys/priv_key.pem?raw=true)
+ 
+ **Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance to your data.
+
+![ManualRegisterSetConst](./example_imgs/ManualRegisterSetConst.png)
+
+10. Click **Build and Force Restart**.
+
+11. Check from the logs in the IDE that connection is established and configuration updates receiving is enabled. Also the current configuration may be received - it is empty by default.
+
+![ManualRegisterLogs](./example_imgs/ManualRegisterRun.png)
+
+12. [Update Device Configuration](#update-device-configuration) and check from the logs that new configuration is received
+
+![ManualRegisterLogs](./example_imgs/ManualRegisterLogs.png)
+
+13. [Check Device State](#check-device-state) and make sure that your device has set state to the value you set in the previous step
+
+![ManualRegisterState](./example_imgs/ManualRegisterState.png)
 
 ## Google IoT Core How To ##
 
@@ -168,7 +207,7 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
 9. Make a note of **client_email** (it is *GOOGLE_ISS*) and **private_key** (it is *GOOGLE_SECRET_KEY*) from downloaded JSON file. They will be needed to setup and run your application.
 
-### Create A Device ###
+### Create Device ###
 
 1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project
 
@@ -205,3 +244,23 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 ![UpdateConfig](./example_imgs/UpdateConfig.png)
 
 5. Click **SEND TO DEVICE**.
+
+### Check Device State ###
+
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project
+
+2. Click on the registry you created in the previous steps
+
+![OpenRegistry](./example_imgs/OpenRegistry.png)
+
+3. Click on the device the configuration of which you want to update
+
+![OpenDevice](./example_imgs/OpenDevice.png)
+
+**Note**: If you don't have any devices, create one by running the [AutoRegister example](#autoregister-example) or manually.
+
+4. Open the **Configuration and state history** tab. Here you can see all configuration and state updates.
+
+![ConfStateHistory](./example_imgs/ConfStateHistory.png)
+
+**Note**: By default, all items are shown in **Base64** format. You can click on each item and choose **Text** format.
