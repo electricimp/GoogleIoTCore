@@ -56,7 +56,7 @@ See [ManualRegister Example Setup and Run](#manualregister-example-setup-and-run
  - *PUBLIC_KEY_URL*: copy [this link](./keys/pub_key.pem?raw=true)
  - *PRIVATE_KEY_URL*: copy [this link](./keys/priv_key.pem?raw=true)
  
- **Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance to your data.
+ **Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance to your data. Also you can use your own keys - [here](https://cloud.google.com/iot/docs/quickstart#add_a_public_key_to_the_device) you can get a sample command for generation of them and then you should upload the keys somewhere and set your links to *\*_KEY_URL* variables.
 
 ![AutoRegisterSetConst](./example_imgs/AutoRegisterSetConst.png)
 
@@ -219,7 +219,9 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
  - **Device ID**: example-device_2
  - **Public key format**: RS256_X509
- - **Public key value**: copy the public key from [here](https://raw.githubusercontent.com/ragrus-nbl/GoogleIoTCore/master/pub_key.pem)
+ - **Public key value**: copy the public key from [here](./keys/priv_key.pem?raw=true)
+ 
+**Note**: Also you can use your own keys - [here](https://cloud.google.com/iot/docs/quickstart#add_a_public_key_to_the_device) you can get a sample command for generation of them.
  
 4. Click **Create**.
 
