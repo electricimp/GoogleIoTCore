@@ -32,7 +32,6 @@
 // - receives and logs notifications when Configuration is updated
 // - sends the Configuration value as a device state
 
-
 class ManualRegisterExample {
     _googleIoTCoreClient = null;
 
@@ -81,12 +80,21 @@ class ManualRegisterExample {
 
     function downloadKey(url, callback) {
         local req = http.get(url);
+        local sent = null;
 
-        local sent = function (resp) {
-            if (resp.statuscode / 100 != 2) {
-                callback(resp.statuscode, null);
-            } else {
+        sent = function (resp) {
+            if (resp.statuscode / 100 == 3) {
+                if (!("location" in resp.headers)) {
+                    server.log("Downloading is failed: redirective response does not contain \"location\" header");
+                    callback(resp.statuscode, null);
+                    return;
+                }
+                req = http.get(resp.headers.location);
+                req.sendasync(sent);
+            } else if (resp.statuscode / 100 == 2) {
                 callback(0, resp.body);
+            } else {
+                callback(resp.statuscode, null);
             }
         }.bindenv(this);
 

@@ -27,11 +27,10 @@
 #require "OAuth2.agent.lib.nut:2.0.0"
 
 // GoogleIoTCore library example:
-// - downloads public and private keys using the provided URLs
-// - registers a device (if not registered yet) in the Google IoT Core platform using the provided credentials and the public key
-// - connects to Google IoT Core using the private key and the provided credentials
-// - starts to send telemetry events every 8 sec. The events contain the current timestamp
-
+// - Downloads public and private keys using the provided URLs. All other configuration settings are hardcoded in the example's code.
+// - Registers a device (if not registered yet) in the Google IoT Core platform using the optional `register()` method of the library.
+// - Connects to Google IoT Core.
+// - Sends telemetry events every 8 sec. Each event contains the current timestamp.
 
 // Number of seconds to wait before the next publishing
 const PUBLISH_DELAY = 8;
@@ -106,12 +105,21 @@ class AutoRegisterExample {
 
     function downloadKey(url, callback) {
         local req = http.get(url);
+        local sent = null;
 
-        local sent = function (resp) {
-            if (resp.statuscode / 100 != 2) {
-                callback(resp.statuscode, null);
-            } else {
+        sent = function (resp) {
+            if (resp.statuscode / 100 == 3) {
+                if (!("location" in resp.headers)) {
+                    server.log("Downloading is failed: redirective response does not contain \"location\" header");
+                    callback(resp.statuscode, null);
+                    return;
+                }
+                req = http.get(resp.headers.location);
+                req.sendasync(sent);
+            } else if (resp.statuscode / 100 == 2) {
                 callback(0, resp.body);
+            } else {
+                callback(resp.statuscode, null);
             }
         }.bindenv(this);
 
