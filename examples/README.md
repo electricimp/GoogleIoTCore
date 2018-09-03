@@ -2,19 +2,23 @@
 
 This document describes the example applications provided with the [GoogleIoTCore library](../README.md).
 
-## AutoRegister example ##
+## AutoRegister Example ##
+
+This application is an example of a quick prototype, POC or a simple demo. For an example of a more production oriented application see [ManualRegister Example](#manualregister-example).
 
 The example:
-- Downloads public and private keys using the provided URLs.
-- Registers a device (if not registered yet) in the Google IoT Core platform using the provided credentials and the public key.
-- Connects to Google IoT Core using the private key and the provided credentials.
-- Starts to send telemetry events every 8 sec. The events contain the current timestamp.
+- Downloads public and private keys using the provided URLs. All other configuration settings are hardcoded in the example's code. 
+- Registers a device (if not registered yet) in the Google IoT Core platform using the optional `register()` method of the library.
+- Connects to Google IoT Core.
+- Sends telemetry events every 8 sec. Each event contains the current timestamp.
 
 Source code: [AutoRegister.agent.nut](./AutoRegister.agent.nut)
 
 See [AutoRegister Example Setup and Run](#autoregister-example-setup-and-run).
 
 ## ManualRegister Example ##
+
+TODO - describe it as a more production oriented example.
 
 This example:
 - Downloads a private key using the provided URL.
@@ -37,36 +41,79 @@ See [ManualRegister Example Setup and Run](#manualregister-example-setup-and-run
 
 3. [Create Device Registry](#create-device-registry)
 
-4. [Set up your Imp device](https://developer.electricimp.com/gettingstarted)
+4. [Setup Google Service Accounts](#setup-google-service-accounts)
 
-5. In the [Electric Imp's IDE](https://impcentral.electricimp.com) create new Product and Development Device Group.
+5. [Set up your Imp device](https://developer.electricimp.com/gettingstarted)
 
-6. Assign a device to the newly created Device Group.
+6. In the [Electric Imp's IDE](https://impcentral.electricimp.com) create new Product and Development Device Group.
 
-7. Copy the [AutoRegister example source code](./AutoRegister.agent.nut) and paste it into the IDE as the agent code.
+7. Assign a device to the newly created Device Group.
 
-8. Set constants in the agent example code:
- - *GOOGLE_IOT_CORE_PROJECT_ID*: example-project
- - *GOOGLE_IOT_CORE_CLOUD_REGION*: us-central1
- - *GOOGLE_IOT_CORE_REGISTRY_ID*: example-registry
- - *GOOGLE_IOT_CORE_DEVICE_ID*: example-device
- - Follow [these instructions](https://github.com/electricimp/OAuth-2.0/tree/master/examples#setting-up-google-oauth2-for-service-accounts) to set *GOOGLE_ISS* and *GOOGLE_SECRET_KEY* constants
- - *PUBLIC_KEY_URL*: TODO (temporary link: https://raw.githubusercontent.com/ragrus-nbl/GoogleIoTCore/master/pub_key.pem)
- - *PRIVATE_KEY_URL*: TODO (temporary link: https://raw.githubusercontent.com/ragrus-nbl/GoogleIoTCore/master/priv_key.pem)
+8. Copy the [AutoRegister example source code](./AutoRegister.agent.nut) and paste it into the IDE as the agent code.
+
+9. Set constants in the agent example code:
+ - *GOOGLE_IOT_CORE_PROJECT_ID*: set the value from the [step 2](#create-iot-core-project)
+ - *GOOGLE_IOT_CORE_CLOUD_REGION*: `us-central1`
+ - *GOOGLE_IOT_CORE_REGISTRY_ID*: `example-registry`
+ - *GOOGLE_IOT_CORE_DEVICE_ID*: `example-device_1`
+ - *GOOGLE_ISS* and *GOOGLE_SECRET_KEY*: set the values from the [step 4](#setup-google-service-accounts)
+ - *PUBLIC_KEY_URL*: copy [this link](./keys/pub_key.pem?raw=true)
+ - *PRIVATE_KEY_URL*: copy [this link](./keys/priv_key.pem?raw=true)
  
- **Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance to your data.
+**Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance to your data.
+
+**Note**: You may generate and use your own public-private keys pair. [This is](https://cloud.google.com/iot/docs/quickstart#add_a_public_key_to_the_device) an example of how to generate the keys. After that you should upload the keys somewhere and set the links to the keys as *\*_KEY_URL* variables.
 
 ![AutoRegisterSetConst](./example_imgs/AutoRegisterSetConst.png)
 
-9. Click **Build and Force Restart**.
+10. Click **Build and Force Restart**.
 
-10. Check from the logs in the IDE that telemetry events are successfully sent from the device (periodically)
+11. Check from the logs in the IDE that telemetry events are successfully periodically sent from the device.
 
-![AutoRegisterLogs](./example_imgs/SendMessagesLogs.png)
+![AutoRegisterLogs](./example_imgs/AutoRegisterRun.png)
 
 ### ManualRegister Example Setup and Run ###
 
-TODO
+1. [Login To Google IoT Core](#login-to-google-iot-core)
+
+2. [Create IoT Core Project](#create-iot-core-project) (if not created yet)
+
+3. [Create Device Registry](#create-device-registry)
+
+4. [Create Device Manually](#create-device) or re-use the device created by [AutoRegister Example](#autoregister-example-setup-and-run) if you ran that example before
+
+5. [Set up your Imp device](https://developer.electricimp.com/gettingstarted)
+
+6. In the [Electric Imp's IDE](https://impcentral.electricimp.com) create new Product and Development Device Group.
+
+7. Assign a device to the newly created Device Group.
+
+8. Copy the [ManualRegister example source code](./ManualRegister.agent.nut) and paste it into the IDE as the agent code.
+
+9. Set constants in the agent example code:
+ - *GOOGLE_IOT_CORE_PROJECT_ID*: set the value from the [step 2](#create-iot-core-project)
+ - *GOOGLE_IOT_CORE_CLOUD_REGION*: `us-central1`
+ - *GOOGLE_IOT_CORE_REGISTRY_ID*: `example-registry`
+ - *GOOGLE_IOT_CORE_DEVICE_ID*: set the value from the step 4
+ - *PRIVATE_KEY_URL*: copy [this link](./keys/priv_key.pem?raw=true)
+ 
+**Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance to your data.
+
+![ManualRegisterSetConst](./example_imgs/ManualRegisterSetConst.png)
+
+10. Click **Build and Force Restart**.
+
+11. Check from the logs in the IDE that connection is established and configuration updates receiving is enabled. Also the current configuration may be received - it is empty by default.
+
+![ManualRegisterLogs](./example_imgs/ManualRegisterRun.png)
+
+12. [Update Device Configuration](#update-device-configuration) and check from the logs that new configuration is received
+
+![ManualRegisterLogs](./example_imgs/ManualRegisterLogs.png)
+
+13. [Check Device State](#check-device-state) and make sure that your device has set the latest STATE to the value you set in the previous step
+
+![ManualRegisterState](./example_imgs/ManualRegisterState.png)
 
 ## Google IoT Core How To ##
 
@@ -79,15 +126,15 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
 ![View console](./example_imgs/ViewConsole.png)
 
+**Note**: In the next steps you may be needed to use a free trial period of paid subscription.
+
 ### Create IoT Core Project ###
 
-1. In the [Azure portal](https://portal.azure.com/), click **Select a project > NEW PROJECT**:
+1. In the [Google Cloud Console](https://console.cloud.google.com/iot), click **Select a project > NEW PROJECT**:
 
 ![Create IoT Core Project](./example_imgs/CreateProject1.png)
 
 ![Create IoT Core Project](./example_imgs/CreateProject2.png)
-
-**Note**: You may be needed to use a free trial period of paid subscription.
 
 2. On the **New project** page, enter the following information for your new project:
 
@@ -103,9 +150,11 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
 ### Create Device Registry ###
 
-1. On [this page](https://console.cloud.google.com/iot) choose your project and click **Enable API**:
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project and click **Enable API**:
 
 ![Enable API](./example_imgs/EnableAPI.png)
+
+**Note**: If you are getting an error like *"Operation does not satisfy the following requirements: billing-enabled..."*, you probably need to get a paid subscription or free trial.
 
 2. Click **Create a device registry**:
 
@@ -125,6 +174,101 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
  
 ![Create a device registry](./example_imgs/CreateRegistry2.png)
 
+### Setup Google Service Accounts ###
+
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project
+
+2. Click **IAM & Admin**, then **Service Accounts** from left side menu
+
+![ServiceAccounts](./example_imgs/ServiceAccounts.png)
+
+3. Click the **Create service account** button
+
+![CreateServiceAccount](./example_imgs/CreateServiceAccount1.png)
+
+4. Enter a new service account name in the corresponding field: example-serv-acc
+
+5. From the **Role** dropdown menu, select **Cloud IoT Provisioner**
+
+6. Check the **Furnish a new private key** button. Leave all other checkboxes untouched
+
+7. Click the **Create** button
+
+![CreateServiceAccount](./example_imgs/CreateServiceAccount2.png)
+
+8. The file `<project name>-<random number>.json` will be downloaded to your computer. It will look something like this:
+
+```json
+{ "type": "service_account",
+  "project_id": "test-project",
+  "private_key_id": "27ed751da7f0cb605c02dafda6a5cf535e662aea",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMII ..... QbDgw==\n-----END PRIVATEKEY-----\n",
+  "client_email": "test-account@test-project.iam.gserviceaccount.com",
+  "client_id": "117467107027610486288",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/test-account%40@test-project.iam.gserviceaccount.com" }
+```
+
+9. Make a note of **client_email** (it is *GOOGLE_ISS*) and **private_key** (it is *GOOGLE_SECRET_KEY*) from downloaded JSON file. They will be needed to setup and run your application.
+
+### Create Device ###
+
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project
+
+2. Click on the registry you created in the previous steps
+
+![OpenRegistry](./example_imgs/OpenRegistry.png)
+
+3. Click **Create device** and enter the following information for your new device:
+
+ - **Device ID**: example-device_2
+ - **Public key format**: RS256_X509
+ - **Public key value**: copy the public key from [here](./keys/priv_key.pem?raw=true)
+ 
+**Note**: You may generate and use your own public-private keys pair. [This is](https://cloud.google.com/iot/docs/quickstart#add_a_public_key_to_the_device) an example of how to generate the keys.
+ 
+4. Click **Create**.
+
+![CreateDevice](./example_imgs/CreateDevice.png)
+
 ### Update Device Configuration ###
 
-TODO
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project
+
+2. Click on the registry you created in the previous steps
+
+![OpenRegistry](./example_imgs/OpenRegistry.png)
+
+3. Click on the device the configuration of which you want to update
+
+![OpenDevice](./example_imgs/OpenDevice.png)
+
+**Note**: If you don't have any devices, create one by running the [AutoRegister example](#autoregister-example) or [manually](#create-device).
+
+4. Click **UPDATE CONFIG**, choose **Text** format and type your new configuration:
+
+![UpdateConfig](./example_imgs/UpdateConfig.png)
+
+5. Click **SEND TO DEVICE**.
+
+### Check Device State ###
+
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project
+
+2. Click on the registry you created in the previous steps
+
+![OpenRegistry](./example_imgs/OpenRegistry.png)
+
+3. Click on the device the configuration of which you want to update
+
+![OpenDevice](./example_imgs/OpenDevice.png)
+
+**Note**: If you don't have any devices, create one by running the [AutoRegister example](#autoregister-example) or [manually](#create-device).
+
+4. Open the **Configuration and state history** tab. Here you can see all configuration and state updates.
+
+![ConfStateHistory](./example_imgs/ConfStateHistory.png)
+
+**Note**: By default, all items are shown in **Base64** format. You can click on each item and choose **Text** format.

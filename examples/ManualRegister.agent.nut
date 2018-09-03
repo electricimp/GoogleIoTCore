@@ -75,7 +75,7 @@ class ManualRegisterExample {
             _googleIoTCoreClient.connect();
         }.bindenv(this);
 
-        server.log("Downolading the private key..");
+        server.log("Downloading the private key..");
         downloadKey(_privateKeyUrl, privKeyLoaded);
     }
 
