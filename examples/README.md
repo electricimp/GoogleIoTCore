@@ -49,7 +49,7 @@ See [Configuration And State Example Setup and Run](#configuration-and-state-exa
 
 7. Assign a device to the newly created Device Group.
 
-8. Copy the [AutoRegister example source code](./AutoRegister.agent.nut) and paste it into the IDE as the agent code.
+8. Copy the [Telemetry example source code](./Telemetry.agent.nut) and paste it into the IDE as the agent code.
 
 9. Set constants in the agent example code:
  - *GOOGLE_IOT_CORE_PROJECT_ID*: set the value from the [step 2](#create-iot-core-project)
@@ -64,13 +64,13 @@ See [Configuration And State Example Setup and Run](#configuration-and-state-exa
 
 **Note**: You may generate and use your own public-private keys pair. [This is](https://cloud.google.com/iot/docs/quickstart#add_a_public_key_to_the_device) an example of how to generate the keys. After that you should upload the keys somewhere and set the links to the keys as *\*_KEY_URL* variables.
 
-![AutoRegisterSetConst](./example_imgs/AutoRegisterSetConst.png)
+![TelemetrySetConst](./example_imgs/TelemetrySetConst.png)
 
 10. Click **Build and Force Restart**.
 
 11. Check from the logs in the IDE that telemetry events are successfully periodically sent from the device.
 
-![AutoRegisterLogs](./example_imgs/AutoRegisterRun.png)
+![TelemetryLogs](./example_imgs/TelemetryRun.png)
 
 ### Configuration And State Example Setup and Run ###
 
@@ -80,7 +80,7 @@ See [Configuration And State Example Setup and Run](#configuration-and-state-exa
 
 3. [Create Device Registry](#create-device-registry)
 
-4. [Create Device Manually](#create-device) or re-use the device created by [AutoRegister Example](#autoregister-example-setup-and-run) if you ran that example before
+4. [Create Device Manually](#create-device) or re-use the device created by [Telemetry Example](#telemetry-example-setup-and-run) if you ran that example before
 
 5. [Set up your Imp device](https://developer.electricimp.com/gettingstarted)
 
@@ -88,7 +88,7 @@ See [Configuration And State Example Setup and Run](#configuration-and-state-exa
 
 7. Assign a device to the newly created Device Group.
 
-8. Copy the [ManualRegister example source code](./ManualRegister.agent.nut) and paste it into the IDE as the agent code.
+8. Copy the [Configuration And State example source code](./CfgState.agent.nut) and paste it into the IDE as the agent code.
 
 9. Set constants in the agent example code:
  - *GOOGLE_IOT_CORE_PROJECT_ID*: set the value from the [step 2](#create-iot-core-project)
@@ -99,21 +99,21 @@ See [Configuration And State Example Setup and Run](#configuration-and-state-exa
  
 **Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance to your data.
 
-![ManualRegisterSetConst](./example_imgs/ManualRegisterSetConst.png)
+![CfgStateSetConst](./example_imgs/CfgStateSetConst.png)
 
 10. Click **Build and Force Restart**.
 
 11. Check from the logs in the IDE that connection is established and configuration updates receiving is enabled. Also the current configuration may be received - it is empty by default.
 
-![ManualRegisterLogs](./example_imgs/ManualRegisterRun.png)
+![CfgStateLogs](./example_imgs/CfgStateRun.png)
 
 12. [Update Device Configuration](#update-device-configuration) and check from the logs that new configuration is received
 
-![ManualRegisterLogs](./example_imgs/ManualRegisterLogs.png)
+![CfgStateLogs](./example_imgs/CfgStateLogs.png)
 
 13. [Check Device State](#check-device-state) and make sure that your device has set the latest STATE to the value you set in the previous step
 
-![ManualRegisterState](./example_imgs/ManualRegisterState.png)
+![CfgStateState](./example_imgs/CfgStateState.png)
 
 ## Google IoT Core How To ##
 
