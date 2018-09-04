@@ -24,15 +24,18 @@
 
 
 #require "GoogleIoTCore.agent.lib.nut:1.0.0"
+#require "OAuth2.agent.lib.nut:2.0.0"
 
 // GoogleIoTCore library example:
-// - downloads a private key using the provided URL
-// - connects to Google IoT Core using the private key and the other provided credentials
-// - enables Configuration updates receiving
-// - receives and logs notifications when Configuration is updated
-// - sends the Configuration value as a device state
+// - Downloads public and private keys using the provided URLs. All other configuration settings are hardcoded in the example's code.
+// - Registers a device (if not registered yet) in the Google IoT Core platform using the optional `register()` method of the library.
+// - Connects to Google IoT Core.
+// - Sends telemetry events every 8 sec. Each event contains the current timestamp.
 
-class ManualRegisterExample {
+// Number of seconds to wait before the next publishing
+const PUBLISH_DELAY = 8;
+
+class TelemetryExample {
     _googleIoTCoreClient = null;
 
     _projectId = null;
@@ -41,24 +44,35 @@ class ManualRegisterExample {
     _deviceId = null;
     _privateKey = null;
 
+    _iss = null;
+    _secret = null;
+    _publicKey = null;
+
+    _publicKeyUrl = null;
     _privateKeyUrl = null;
 
     constructor(projectId,
                 cloudRegion,
                 registryId,
                 deviceId,
+                iss,
+                secret,
+                publicKeyUrl,
                 privateKeyUrl) {
         _projectId = projectId;
         _cloudRegion = cloudRegion;
         _registryId = registryId;
         _deviceId = deviceId;
+        _iss = iss;
+        _secret = secret;
+        _publicKeyUrl = publicKeyUrl;
         _privateKeyUrl = privateKeyUrl;
     }
 
     function start() {
         local privKeyLoaded = function (err, privKey) {
             if (err != 0) {
-                server.log("Private key downloading is failed: " + err);
+                server.error("Private key downloading is failed: " + err);
                 return;
             }
             server.log("Private key is loaded");
@@ -71,11 +85,22 @@ class ManualRegisterExample {
                                                         onConnected.bindenv(this),
                                                         onDisconnected.bindenv(this));
 
-            _googleIoTCoreClient.connect();
+            server.log("Trying to register the device..");
+            _googleIoTCoreClient.register(_iss, _secret, _publicKey, onRegistered.bindenv(this));
         }.bindenv(this);
 
-        server.log("Downloading the private key..");
-        downloadKey(_privateKeyUrl, privKeyLoaded);
+        local pubKeyLoaded = function (err, pubKey) {
+            if (err != 0) {
+                server.error("Public key downloading is failed: " + err);
+                return;
+            }
+            server.log("Public key is loaded");
+            _publicKey = pubKey;
+            downloadKey(_privateKeyUrl, privKeyLoaded);
+        }.bindenv(this);
+
+        server.log("Downloading keys..");
+        downloadKey(_publicKeyUrl, pubKeyLoaded);
     }
 
     function downloadKey(url, callback) {
@@ -85,7 +110,7 @@ class ManualRegisterExample {
         sent = function (resp) {
             if (resp.statuscode / 100 == 3) {
                 if (!("location" in resp.headers)) {
-                    server.log("Downloading is failed: redirective response does not contain \"location\" header");
+                    server.error("Downloading is failed: redirective response does not contain \"location\" header");
                     callback(resp.statuscode, null);
                     return;
                 }
@@ -101,22 +126,26 @@ class ManualRegisterExample {
         req.sendasync(sent);
     }
 
-    function onConfigReceived(config) {
-        server.log("Configuration received: " + config.tostring());
-        server.log("Reporting new state..");
-        reportState(config);
-    }
-
-    function reportState(data) {
-        _googleIoTCoreClient.reportState(data, onStateReported.bindenv(this));
-    }
-
-    function onStateReported(data, error) {
+    function onRegistered(error) {
         if (error != 0) {
-            server.error("Report state error: code = " + error);
+            server.error("Registration error: code = " + error);
             return;
         }
-        server.log("State has been reported!");
+        server.log("Successfully registered!");
+        _googleIoTCoreClient.connect();
+    }
+
+    function publishTelemetry() {
+        _googleIoTCoreClient.publish(time().tostring(), null, onPublished.bindenv(this));
+    }
+
+    function onPublished(data, error) {
+        if (error != 0) {
+            server.error("Publish telemetry error: code = " + error);
+            return;
+        }
+        server.log("Telemetry has been published. Data = " + data);
+        imp.wakeup(PUBLISH_DELAY, publishTelemetry.bindenv(this));
     }
 
     function onConnected(error) {
@@ -124,21 +153,12 @@ class ManualRegisterExample {
             server.error("Can't connect: " + error);
         } else {
             server.log("Connected successfully!");
-            server.log("Enabling configuration updates receiving..");
-            _googleIoTCoreClient.enableCfgReceiving(onConfigReceived.bindenv(this), onCfgEnabled.bindenv(this));
+            publishTelemetry();
         }
-    }
-
-    function onCfgEnabled(error) {
-        if (error != 0) {
-            server.error("Can't enable: " + error);
-            return;
-        }
-        server.log("Successfully enabled!");
     }
 
     function onDisconnected(error) {
-        server.error("Disconnected: " + error);
+        server.log("Disconnected: " + error);
     }
 }
 
@@ -148,16 +168,23 @@ class ManualRegisterExample {
 // GOOGLE IOT CORE CONSTANTS
 // ---------------------------------------------------------------------------------
 const GOOGLE_IOT_CORE_PROJECT_ID    = "<YOUR_PROJECT_ID>";
-const GOOGLE_IOT_CORE_CLOUD_REGION  = "<YOUR_CLOUD_REGION>";
-const GOOGLE_IOT_CORE_REGISTRY_ID   = "<YOUR_REGISTRY_ID>";
-const GOOGLE_IOT_CORE_DEVICE_ID     = "<YOUR_DEVICE_ID>";
+const GOOGLE_IOT_CORE_CLOUD_REGION  = "us-central1";
+const GOOGLE_IOT_CORE_REGISTRY_ID   = "example-registry";
+const GOOGLE_IOT_CORE_DEVICE_ID     = "example-device_1";
 
+const GOOGLE_ISS = "<YOUR_GOOGLE_ISS>";
+const GOOGLE_SECRET_KEY = "<YOUR_GOOGLE_SECRET_KEY>";
+
+const PUBLIC_KEY_URL = "<YOUR_PUBLIC_KEY_URL>";
 const PRIVATE_KEY_URL = "<YOUR_PRIVATE_KEY_URL>";
 
 // Start Application
-googleIoTCore <- ManualRegisterExample(GOOGLE_IOT_CORE_PROJECT_ID,
-                                       GOOGLE_IOT_CORE_CLOUD_REGION,
-                                       GOOGLE_IOT_CORE_REGISTRY_ID,
-                                       GOOGLE_IOT_CORE_DEVICE_ID,
-                                       PRIVATE_KEY_URL);
+googleIoTCore <- TelemetryExample(GOOGLE_IOT_CORE_PROJECT_ID,
+                                  GOOGLE_IOT_CORE_CLOUD_REGION,
+                                  GOOGLE_IOT_CORE_REGISTRY_ID,
+                                  GOOGLE_IOT_CORE_DEVICE_ID,
+                                  GOOGLE_ISS,
+                                  GOOGLE_SECRET_KEY,
+                                  PUBLIC_KEY_URL,
+                                  PRIVATE_KEY_URL);
 googleIoTCore.start();
