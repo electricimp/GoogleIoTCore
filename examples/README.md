@@ -4,13 +4,13 @@ This document describes the example applications provided with the [GoogleIoTCor
 
 ## Telemetry Example ##
 
-This application is an example of a quick prototype, POC or a simple demo. For an example of a more production oriented application see [Configuration And State Example Setup and Run](#configuration-and-state-example-setup-and-run).
+This application is an example of a quick prototype, POC or a simple demo. For an example of a more production oriented application see [Configuration And State Example](#configuration-and-state-example).
 
 The example:
 - Downloads public and private keys using the provided URLs. All other configuration settings are hardcoded in the example's code. 
 - Registers a device (if not registered yet) in the Google IoT Core platform using the optional `register()` method of the library.
-- Connects to Google IoT Core.
-- Sends telemetry events every 8 sec. Each event contains the current timestamp.
+- Connects to the Google IoT Core.
+- Sends Telemetry events to the Google IoT Core every 8 sec. Each event contains the current timestamp.
 
 Source code: [Telemetry.agent.nut](./Telemetry.agent.nut)
 
@@ -18,14 +18,18 @@ See [Telemetry Example Setup and Run](#telemetry-example-setup-and-run).
 
 ## Configuration And State Example ##
 
-This is a more production oriented example. It has additional comments in [the code](./CfgState.agent.nut) with production-related hints. It also has some stubs for imitation of agent-device communication. Error processing is a bit more advanced in this example.
+This is an example of a more production oriented application. It has a design which may be used in a real production code, includes additional comments with production-related hints.
 
-This example:
-- Downloads a private key using the provided URL. All other configuration settings are hardcoded in the example's code.
-- Connects to Google IoT Core.
-- Enables Configuration updates receiving.
-- Receives and logs Configuration updates.
-- Sends the Configuration value as a device state.
+This application:
+- Assumes a device is already registered in the Google IoT Core platform, eg. by a production server.
+- Uses the minimum settings required for the application initialization.
+- After the first start, downloads the application settings, eg. from the production server, which URL is pre-hardcoded in the application (for the simplicity, only a private key is downloaded from the URL but all other settings are hardcoded). After the first initialization all settings may be stored in the imp-agent and after the application restart downloaded from the store (not implemented for the simplicity).
+- Connects to the Google IoT Core.
+- Enables "Configuration updates receiving" feature.
+- When a new Configuration is received from the Google IoT Core, sends it to the imp-device and waits for a new state from the imp-device. When the new state is received from the imp-device, reports it as the device state to the Google IoT Core (for the simplicity, a real communication with the imp-device is not implemented).
+- Logs all errors and other significant events to the production server or other logging utility (for the simplicity, logs to the imp log stream). Signals some of the errors to the imp-device, eg. to display them (a real communication with the imp-device is not implemented).
+
+This application does not demonstrate sending Telemetry events to the Google IoT Core. [Telemetry Example](#telemetry-example) demostrates that feature.
 
 Source code: [CfgState.agent.nut](./CfgState.agent.nut)
 
