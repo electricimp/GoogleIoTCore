@@ -225,7 +225,7 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
  - **Device ID**: example-device_2
  - **Public key format**: RS256_X509
- - **Public key value**: copy the public key from [here](./keys/priv_key.pem?raw=true)
+ - **Public key value**: copy the public key from [here](./keys/pub_key.pem?raw=true)
  
 **Note**: You may generate and use your own public-private keys pair. [This is](https://cloud.google.com/iot/docs/quickstart#add_a_public_key_to_the_device) an example of how to generate the keys.
  
