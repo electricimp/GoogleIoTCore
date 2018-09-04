@@ -2,9 +2,9 @@
 
 This document describes the example applications provided with the [GoogleIoTCore library](../README.md).
 
-## AutoRegister Example ##
+## Telemetry Example ##
 
-This application is an example of a quick prototype, POC or a simple demo. For an example of a more production oriented application see [ManualRegister Example](#manualregister-example).
+This application is an example of a quick prototype, POC or a simple demo. For an example of a more production oriented application see [Configuration And State Example Setup and Run](#configuration-and-state-example-setup-and-run).
 
 The example:
 - Downloads public and private keys using the provided URLs. All other configuration settings are hardcoded in the example's code. 
@@ -12,28 +12,28 @@ The example:
 - Connects to Google IoT Core.
 - Sends telemetry events every 8 sec. Each event contains the current timestamp.
 
-Source code: [AutoRegister.agent.nut](./AutoRegister.agent.nut)
+Source code: [Telemetry.agent.nut](./Telemetry.agent.nut)
 
-See [AutoRegister Example Setup and Run](#autoregister-example-setup-and-run).
+See [Telemetry Example Setup and Run](#telemetry-example-setup-and-run).
 
-## ManualRegister Example ##
+## Configuration And State Example ##
 
-TODO - describe it as a more production oriented example.
+This is a more production oriented example. It has additional comments in [the code](./CfgState.agent.nut) with production-related hints. It also has some stubs for imitation of agent-device communication. Error processing is a bit more advanced in this example.
 
 This example:
-- Downloads a private key using the provided URL.
-- Connects to Google IoT Core using the private key and the other provided credentials.
+- Downloads a private key using the provided URL. All other configuration settings are hardcoded in the example's code.
+- Connects to Google IoT Core.
 - Enables Configuration updates receiving.
-- Receives and logs notifications when Configuration is updated.
+- Receives and logs Configuration updates.
 - Sends the Configuration value as a device state.
 
-Source code: [ManualRegister.agent.nut](./ManualRegister.agent.nut)
+Source code: [CfgState.agent.nut](./CfgState.agent.nut)
 
-See [ManualRegister Example Setup and Run](#manualregister-example-setup-and-run).
+See [Configuration And State Example Setup and Run](#configuration-and-state-example-setup-and-run).
 
 ## Example Setup and Run ##
 
-### AutoRegister Example Setup and Run ###
+### Telemetry Example Setup and Run ###
 
 1. [Login To Google IoT Core](#login-to-google-iot-core)
 
@@ -72,7 +72,7 @@ See [ManualRegister Example Setup and Run](#manualregister-example-setup-and-run
 
 ![AutoRegisterLogs](./example_imgs/AutoRegisterRun.png)
 
-### ManualRegister Example Setup and Run ###
+### Configuration And State Example Setup and Run ###
 
 1. [Login To Google IoT Core](#login-to-google-iot-core)
 
