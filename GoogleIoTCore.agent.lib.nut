@@ -33,12 +33,10 @@ const GOOGLE_IOT_CORE_ERROR_ALREADY_REGISTERED      = 1004;
 const GOOGLE_IOT_CORE_ERROR_GENERAL                 = 1010;
 
 class GoogleIoTCore {
-
     static VERSION = "1.0.0";
-
 }
 
-class GoogleIoTCore.Client extends GoogleIoTCore {
+class GoogleIoTCore.Client {
 
     _debug              = false;
 
@@ -101,7 +99,8 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
         _options = {
             "maxPendingSetStateRequests" : DEFAULT_SET_STATE_PARAL_REQS,
             "maxPendingPublishTelemetryRequests" : DEFAULT_PUB_TELEMETRY_PARAL_REQS,
-            "tokenTTL" : DEFAULT_TOKEN_TTL
+            "tokenTTL" : DEFAULT_TOKEN_TTL,
+            "tokenAutoRefresh" : true
         };
 
         if (options != null) {
@@ -121,9 +120,13 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
     //          (optional)              The callback signature:
     //                                  onRegistered(error), where
     //                                      error : Integer     0 if the operation is completed successfully, an error code otherwise.
+    //     name : String                Device name.
+    //          (optional)
+    //     keyFormat : String           Public key format. If not specified or null, RSA_X509_PEM is applied.
+    //          (optional)
     //
     // Returns:                         Nothing.
-    function register(iss, secret, publicKey, onRegistered = null) {
+    function register(iss, secret, publicKey, onRegistered = null, name = null, keyFormat = null) {
         local token = null;
 
         local getDeviceDone = function (err, respBody) {
@@ -147,7 +150,7 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
                     }
                 }.bindenv(this);
 
-                _createDevice(publicKey, token, created);
+                _createDevice(publicKey, name, keyFormat, token, created);
             } else {
                 // Device is found. Now we should compare its public keys with our key
                 foreach (cred in respBody.credentials) {
@@ -282,6 +285,16 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
         _transport._reportState(state, onReported);
     }
 
+    // Sets Private key.
+    //
+    // Parameters:
+    //     privateKey : String          Private key.
+    //
+    // Returns:                         Nothing.
+    function setPrivateKey(privateKey) {
+        _privateKey = privateKey;
+    }
+
     // Sets onConnected callback.
     //
     // Parameters:
@@ -375,7 +388,7 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
         req.sendasync(sent);
     }
 
-    function _createDevice(publicKey, oatoken, callback) {
+    function _createDevice(publicKey, name, keyFormat, oatoken, callback) {
         local headers = {
             "authorization" : "Bearer " + oatoken,
             "content-type" : "application/json",
@@ -390,13 +403,18 @@ class GoogleIoTCore.Client extends GoogleIoTCore {
             "credentials": [
                 {
                     "public_key": {
-                        // TODO: should we allow for another RSA format?
                         "format": "RSA_X509_PEM",
                         "key": publicKey
                     }
                 }
             ]
         };
+        if (name != null) {
+            deviceDesc["name"] <- name;
+        }
+        if (keyFormat != null) {
+            deviceDesc.credentials.public_key.format = keyFormat;
+        }
         local data = http.jsonencode(deviceDesc);
 
         local req = http.post(url, headers, data);
@@ -644,7 +662,6 @@ class GoogleIoTCore.MqttTransport {
         mqttMsg.sendasync(msgSentCb);
     }
 
-    // TODO: rename to subscribeXXXXXXXXX?
     function _enableCfgReceiving(onReceive, onDone) {
         local enabled = _onConfigCb != null;
         local disable = onReceive == null;
@@ -743,6 +760,7 @@ class GoogleIoTCore.MqttTransport {
                         _refreshTokenTimer = imp.wakeup(_timeBeforeRefreshing(), _refreshToken.bindenv(this));
                         _runPendingCalls();
                     } else {
+                        _log("Cannot resubscribe to the topics which was subscribed to before the reconnection: " + err);
                         _disconnect(GOOGLE_IOT_CORE_ERROR_TOKEN_REFRESHING);
                     }
                 }.bindenv(this);
@@ -758,7 +776,9 @@ class GoogleIoTCore.MqttTransport {
         if (err == 0) {
             _log("Connected!");
             _state = MQTT_TRANSPORT_STATE.CONNECTED;
-            _refreshTokenTimer = imp.wakeup(_timeBeforeRefreshing(), _refreshToken.bindenv(this));
+            if (_client._options.tokenAutoRefresh) {
+                _refreshTokenTimer = imp.wakeup(_timeBeforeRefreshing(), _refreshToken.bindenv(this));
+            }
         } else {
             _state = MQTT_TRANSPORT_STATE.DISCONNECTED;
         }
@@ -958,11 +978,6 @@ class GoogleIoTCore.MqttTransport {
             callback();
         }.bindenv(this);
         _makeToken(tokenMade);
-    }
-
-    function _logMsg(message, topic) {
-        local text = format("===BEGIN MQTT MESSAGE===\nTopic: %s\nMessage: %s\n===END MQTT MESSAGE===", topic, message);
-        _log(text);
     }
 
     // Information level logger

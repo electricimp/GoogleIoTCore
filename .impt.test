@@ -8,5 +8,5 @@
     "*.test.nut",
     "tests/**/*.test.nut"
   ],
-  "agentFile": "GoogleIoTCore.agent.nut"
+  "agentFile": "GoogleIoTCore.agent.lib.nut"
 }

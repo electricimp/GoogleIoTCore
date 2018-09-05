@@ -35,6 +35,10 @@ class DummyTestCase extends ImpTestCase {
         _googleIoTCoreClient = GoogleIoTCore.Client("projId", "cloudReg", "regId", "devId", GOOGLE_IOT_CORE_PRIVATE_KEY);
     }
 
+    function tearDown() {
+        _googleIoTCoreClient.disconnect();
+    }
+
     function testRegister() {
         return Promise(function (resolve, reject) {
             _googleIoTCoreClient.register("iss", GOOGLE_SECRET_KEY, "pubKey");
@@ -50,7 +54,6 @@ class DummyTestCase extends ImpTestCase {
 
     function testConnect1() {
         return Promise(function (resolve, reject) {
-            _googleIoTCoreClient.connect();
             local callback = function (err) {
                 if (err != 0) {
                     return resolve();
@@ -64,7 +67,6 @@ class DummyTestCase extends ImpTestCase {
 
     function testConnect2() {
         return Promise(function (resolve, reject) {
-            _googleIoTCoreClient.connect(GoogleIoTCore.MqttTransport());
             local callback = function (err) {
                 if (err != 0) {
                     return resolve();
@@ -76,9 +78,9 @@ class DummyTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    function testDisconnect() {
-        _googleIoTCoreClient.disconnect();
-    }
+    // function testDisconnect() {
+    //     _googleIoTCoreClient.disconnect();
+    // }
 
     function testIsConnected() {
         this.assertTrue(!_googleIoTCoreClient.isConnected());
@@ -104,6 +106,7 @@ class DummyTestCase extends ImpTestCase {
                 if (err == GOOGLE_IOT_CORE_ERROR_NOT_CONNECTED) {
                     return resolve();
                 }
+                server.error(err);
                 return reject("GOOGLE_IOT_CORE_ERROR_NOT_CONNECTED error was expected!");
             }.bindenv(this);
             _googleIoTCoreClient.enableCfgReceiving(function (cfg) {}, callback);
