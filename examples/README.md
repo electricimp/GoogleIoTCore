@@ -59,7 +59,7 @@ See [Configuration And State Example Setup and Run](#configuration-and-state-exa
  - *GOOGLE_IOT_CORE_PROJECT_ID*: set the value from the [step 2](#create-iot-core-project)
  - *GOOGLE_IOT_CORE_CLOUD_REGION*: `us-central1`
  - *GOOGLE_IOT_CORE_REGISTRY_ID*: `example-registry`
- - *GOOGLE_IOT_CORE_DEVICE_ID*: `example-device_1`
+ - *GOOGLE_IOT_CORE_DEVICE_ID*: `example-device_1` (this ID will be used when creating a new device)
  - *GOOGLE_ISS* and *GOOGLE_SECRET_KEY*: set the values from the [step 4](#setup-google-service-accounts)
  - *PUBLIC_KEY_URL*: copy [this link](./keys/pub_key.pem?raw=true)
  - *PRIVATE_KEY_URL*: copy [this link](./keys/priv_key.pem?raw=true)
@@ -196,7 +196,7 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
 6. Check the **Furnish a new private key** button. Leave all other checkboxes untouched
 
-7. Click the **Create** button
+7. Click the **Save** button
 
 ![CreateServiceAccount](./example_imgs/CreateServiceAccount2.png)
 
@@ -265,7 +265,7 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
 ![OpenRegistry](./example_imgs/OpenRegistry.png)
 
-3. Click on the device the configuration of which you want to update
+3. Click on the device the state of which you want to check
 
 ![OpenDevice](./example_imgs/OpenDevice.png)
 
