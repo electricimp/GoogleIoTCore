@@ -19,13 +19,38 @@ The library API specification is described [here](#api-specification).
 
 The [working examples](./examples) are provided together with the library and described [here](./examples/README.md).
 
-Below sections explain the main ideas and design of the library and provide the usage recommendations.
+Below sections explain the main usage steps and recommendations.
 
-### General Concepts ??? ###
+### Prerequisites ###
 
-TODO - some general explanation / how to (maybe part from Production Flow)
+Before using the library you need to have an account in [Google IoT Core](https://cloud.google.com/iot-core/), setup it for your project and obtain the following information:
+- [Project ID](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements).
+- [Cloud region](https://cloud.google.com/iot/docs/requirements#cloud_regions).
+- [Registry ID](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements).
 
-### Production Flow ###
+Google IoT Core setup is described in the [instruction](./examples/README.md) for the examples.
+
+Project ID, Cloud region and Registry ID may be identical for all your devices and be pre-hardcoded in your application or obtained, eg. from your server/cloud, after the first start of the application.
+
+Also, for every device you need to have:
+- [Device ID](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements).
+- Public/private keys pair.
+
+Registry ID / Device ID combination must be unique for every device in your project. More information about public/private keys and Device ID see in the [Authentication and Registration](#authentication-and-registration) section.
+
+Device ID and private key need to be obtained, eg. from your server/cloud, after the first start of your application.
+
+The mentioned above settings (Project ID, Device ID, private key, etc.) must be passed to the library after every restart of the application. For all non-hardcoded settings you may decide either to obtain them again after every restart, or save them locally in non-volatile memory.
+
+Finally, you should decide which [Transport](#transport) your application/device is going to use for communication with Google IoT Core.
+
+### Instantiation ###
+
+To start working with the library you should create an instance of the GoogleIoTCore.Client class. Most of the settings mentioned in the [Prerequisites](#prerequisites) section are passed to the client's constructor. Also, the constructor has additional options which controls the behavior of the library.
+
+It is possible to instantiate several clients (TODO - true?) but note that Google IoT Core supports only one connection per device.
+
+### Authentication and Registration ###
 
 TODO - update
 
@@ -39,6 +64,14 @@ Then you have two options:
 1. Right after generation of keys the provisioner can register a device in Google IoT Core and set a public key for it. Only private key should be delivered to the agent.
 
 Google [recommends](https://cloud.google.com/iot/docs/concepts/device-security#provisioning_credentials) the second way for production purposes.
+
+### Transport ###
+
+TODO
+
+### Connection ###
+
+TODO
 
 ### Automatic JWT Token Refreshing ###
 
@@ -54,6 +87,18 @@ For MQTT Transport the client implements the following token updating algorithm:
 1. Sets the timer for the new JWT token expiration.
 
 The library does these operations automatically and invisibly. All the API calls, made at the time of updating, are scheduled in a queue and processed right after the token updating algorithm is successfuly finished. If the token update fails, the onDisconnected() callback is called (if the callback has been set).
+
+### Telemetry Publishing ###
+
+TODO
+
+### State Reporting ###
+
+TODO
+
+### Configuration Receiving ###
+
+TODO
 
 ### Pending Requests ###
 
