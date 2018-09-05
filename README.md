@@ -135,6 +135,41 @@ These additional settings affect the client's behavior and the operations. Every
 
 ```squirrel
 #require "GoogleIoTCore.agent.lib.nut:1.0.0"
+
+const GOOGLE_IOT_CORE_PROJECT_ID    = "example-project-256256";
+const GOOGLE_IOT_CORE_CLOUD_REGION  = "us-central1";
+const GOOGLE_IOT_CORE_REGISTRY_ID   = "example-registry";
+const GOOGLE_IOT_CORE_DEVICE_ID     = "example-device_2";
+const GOOGLE_IOT_CORE_PRIVATE_KEY   = "-----BEGIN PRIVATE KEY-----\nMIIEvAIBAG9w...rxmClmOG==\n-----END PRIVATE KEY-----";
+
+function onConnected(err) {
+    if (err != 0) {
+        server.error("Connect failed: " + err);
+        return;
+    }
+    server.log("Connected");
+    // Here is a good place to enable configuration receiving
+}
+
+function onDisconnected(err) {
+    if (err != 0) {
+        server.error("Disconnected unexpectedly with code: " + err);
+        // Reconnect if disconnection is not initiated by application
+        client.connect();
+    } else {
+        server.log("Disconnected by application");
+    }
+}
+
+// Instantiate and connect a client
+client <- GoogleIoTCore.Client(GOOGLE_IOT_CORE_PROJECT_ID,
+                               GOOGLE_IOT_CORE_CLOUD_REGION,
+                               GOOGLE_IOT_CORE_REGISTRY_ID,
+                               GOOGLE_IOT_CORE_DEVICE_ID,
+                               GOOGLE_IOT_CORE_PRIVATE_KEY,
+                               onConnected,
+                               onDisconnected);
+client.connect();
 ```
 
 #### setOnConnected(*callback*) ####
@@ -182,6 +217,20 @@ This callback is called when the device is registered.
 | *[error](#error-codes)* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
 
 ```squirrel
+const GOOGLE_ISS = "test-serv-acc@studied-temple-212412.iam.gserviceaccount.com";
+const GOOGLE_SECRET_KEY = "-----BEGIN PRIVATE KEY-----\nMII ..... QbDgw==\n-----END PRIVATE KEY-----\n";
+const GOOGLE_IOT_CORE_PUBLIC_KEY = "-----BEGIN CERTIFICATE-----\nMIIC+DCCAeCg...neGy5zYVE=\n-----END CERTIFICATE-----";
+
+client.register(GOOGLE_ISS, GOOGLE_SECRET_KEY, GOOGLE_IOT_CORE_PUBLIC_KEY, onRegistered);
+
+function onRegistered(err) {
+    if (err != 0) {
+        server.error("Registration error: code = " + err);
+        return;
+    }
+    server.log("Successfully registered!");
+    client.connect();
+}
 ```
 
 #### connect(*[transport]*) ####
@@ -201,6 +250,12 @@ The method returns nothing. A result of the operation may be obtained via the [*
 | *transport* | GoogleIoTCore.\*Transport  | Optional | Instance of GoogleIoTCore.\*Transport class. |
 
 ```squirrel
+transportOptions <- {
+    "qos" : 1
+};
+transport <- GoogleIoTCore.MqttTransport(transportOptions);
+
+client.connect(transport);
 ```
 
 #### disconnect() ####
@@ -239,6 +294,21 @@ This callback is called when the data is considered as published or an error occ
 TODO - data is really String or Blob? or Blob always?
 
 ```squirrel
+// Publish a telemetry event without a callback
+client.publish("some data", null);
+
+// Publish a telemetry event with a callback
+client.publish("some data", null, onPublished);
+
+function onPublished(data, err) {
+    if (err != 0) {
+        server.error("Publish telemetry error: code = " + err);
+        // For example simplicity trying to publish again in case of any error
+        client.publish("some data", null, onPublished);
+        return;
+    }
+    server.log("Telemetry has been published. Data = " + data);
+}
 ```
 
 #### enableCfgReceiving(*onReceive[, onDone]*) ####
@@ -274,6 +344,19 @@ This callback is called when the method is completed.
 
 
 ```squirrel
+function onConfigReceived(config) {
+    server.log("Configuration received: " + config.tostring());
+}
+
+function onDone(err) {
+    if (err != 0) {
+        server.error("Enabling configuration receiving failed: " + err);
+    } else {
+        server.log("Configuration receiving enabled successfully");
+    }
+}
+
+client.enableCfgReceiving(onConfigReceived, onDone);
 ```
 
 #### reportState(*state[, onReported]*) ####
@@ -299,6 +382,15 @@ This callback is called when the state is considered as reported or an error occ
 TODO - state is really String or Blob? or Blob always?
 
 ```squirrel
+client.reportState("some data", onReported);
+
+function onReported(state, err) {
+    if (err != 0) {
+        server.error("Report state error: code = " + err);
+        return;
+    }
+    server.log("State has been reported!");
+}
 ```
 
 #### setDebug(*value*) ####
