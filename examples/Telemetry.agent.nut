@@ -179,7 +179,7 @@ const PUBLIC_KEY_URL = "<YOUR_PUBLIC_KEY_URL>";
 const PRIVATE_KEY_URL = "<YOUR_PRIVATE_KEY_URL>";
 
 // Start Application
-googleIoTCore <- TelemetryExample(GOOGLE_IOT_CORE_PROJECT_ID,
+telemetryExample <- TelemetryExample(GOOGLE_IOT_CORE_PROJECT_ID,
                                   GOOGLE_IOT_CORE_CLOUD_REGION,
                                   GOOGLE_IOT_CORE_REGISTRY_ID,
                                   GOOGLE_IOT_CORE_DEVICE_ID,
@@ -187,4 +187,4 @@ googleIoTCore <- TelemetryExample(GOOGLE_IOT_CORE_PROJECT_ID,
                                   GOOGLE_SECRET_KEY,
                                   PUBLIC_KEY_URL,
                                   PRIVATE_KEY_URL);
-googleIoTCore.start();
+telemetryExample.start();
