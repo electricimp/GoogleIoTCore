@@ -38,7 +38,7 @@ Also, for every device you need to have:
 
 Registry ID / Device ID combination must be unique for every device in your project. More information about public/private keys and Device ID see in the [Authentication and Registration](#authentication-and-registration) section.
 
-Finally, you should decide which [Transport](#transport) your application/device is going to use for communication with Google IoT Core.
+Finally, you should decide which transport your application/device is going to use for communication with Google IoT Core. By default, MQTT transport with default [MQTT options](#TODO) is used. If you want to use non-default MQTT options, you need to create an instance of the [GoogleIoTCore.MqttTransport](#TODO) class.
 
 ### Instantiation ###
 
@@ -84,27 +84,15 @@ The register() method requires additional settings to be pre-hardcoded or obtain
 
 The register() method does not require the library to be [connected](#connection) to Google IoT Core.
 
-### Transport ###
-
-Note, the current version of the library supports [MQTT transport](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge) only.
-
-Google IoT Core supports [HTTP and MQTT protocols](https://cloud.google.com/iot/docs/concepts/protocols) for communication.
-
-Before connecting the instantiated GoogleIoTCore.Client to Google IoT Core you may create and initialize a transport object. Eg. create an instance of the GoogleIoTCore.MqttTransport class.
-
-The transport may have additional settings which controls it's behavior. 
-
-If a transport is not created and not explicitly specified during [connection](#connection), the library uses MQTT transport with default settings.
-
 ### Connection ###
 
 [Telemetry Publishing](#telemetry-publishing), [State Reporting](#state-reporting) and [Configuration Receiving](#configuration-receiving) functionalities require the library to be connected to Google IoT Core.
 
-To connect the newly instantiated GoogleIoTCore.Client call the connect() method. It accepts a [transport](#transport) object for communication. Google IoT Core supports only one connection per device.
+To connect the newly instantiated GoogleIoTCore.Client call the connect() method. Google IoT Core supports only one connection per device.
 
 Your application can monitor a connection state using the isConnected() method or the optional onConnected() and onDisconnected() callbacks. The callbacks may be specified in the GoogleIoTCore.Client constructor or set/reset later using the setOnConnected(), setOnDisconnected() methods.
 
-At any time you can disconnect from Google IoT Core by calling the disconnect() method and reconnect by calling the connect() method again, with the same or different [transport](#transport), eg. with different settings of the transport.
+At any time you can disconnect from Google IoT Core by calling the disconnect() method and reconnect by calling the connect() method again.
 
 Note, Google IoT Core can disconnect your device. Eg. due to the JSON Web Token expiration - see [Automatic JWT Refreshing](#automatic-jwt-refreshing) section.
 
@@ -170,7 +158,7 @@ If a request (eg. configuration or command) from Google IoT Core assumes an answ
 
 ### Errors Processing ###
 
-The most of methods of the library return results via callbacks. And every callback include the `error` parameter which indicates if the operation has been executed successfully (`error` is `0`) or has been failed. Different [error codes](#error-codes) include errors returned by the [transports](#transport) and the errors from the library.
+The most of methods of the library return results via callbacks. And every callback include the `error` parameter which indicates if the operation has been executed successfully (`error` is `0`) or has been failed. Different [error codes](#error-codes) include errors returned by the transports and the errors from the library.
 
 ## API Specification ##
 
