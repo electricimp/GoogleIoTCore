@@ -42,17 +42,24 @@
 // - Logs all errors and other significant events to the production server or other logging utility (for the simplicity, logs to the imp log stream).
 //   Signals some of the errors to the imp-device, eg. to display them (a real communication with the imp-device is not implemented).
 
+// This application has 4 modules:
+// - Logger. It is currently just a log() function, but it can be a more functional and complex class
+// - AppSettings class. It is responsible for getting of application settings including credentials
+// - DeviceCommunicator class. It is responsible for communication with the imp-device
+// - App class. Implements the business-logic of the application
+
 
 // GOOGLE IOT CORE CONSTANTS
 // ---------------------------------------------------------------------------------
+
+// This URL can also be dynamic. Or you can get a private key using some other approach and without this URL at all.
+const PRIVATE_KEY_URL = "<YOUR_PRIVATE_KEY_URL>";
 
 // Values for these constants can be obtained from outside instead of hardcoding
 const GOOGLE_IOT_CORE_PROJECT_ID    = "<YOUR_PROJECT_ID>";
 const GOOGLE_IOT_CORE_CLOUD_REGION  = "us-central1";
 const GOOGLE_IOT_CORE_REGISTRY_ID   = "example-registry";
 const GOOGLE_IOT_CORE_DEVICE_ID     = "example-device_2";
-
-const PRIVATE_KEY_URL = "<YOUR_PRIVATE_KEY_URL>";
 
 // ---------------------------------------------------------------------------------
 
@@ -72,14 +79,19 @@ enum LOG_LEVEL {
 CfgStateExample <- {
 
     // Here you can make a multi-level logger
-    log = function (text, level = LOG_LEVEL.INFO) {
-        if (level == LOG_LEVEL.INFO) server.log("[CfgStateExample] " + text);
-        else if (level == LOG_LEVEL.ERROR) server.error("[CfgStateExample] " + text);
+    log = function(text, level = LOG_LEVEL.INFO) {
+        if (level == LOG_LEVEL.INFO) {
+            server.log("[CfgStateExample] " + text);
+        } else if (level == LOG_LEVEL.ERROR) {
+            server.error("[CfgStateExample] " + text);
+        }
         // Logs can be sent to some server/cloud/etc.
     }
 
     // This class is responsible for getting of application settings including credentials
     AppSettings = class {
+        _log = null;
+
         projectId   = null;
         cloudRegion = null;
         registryId  = null;
@@ -88,41 +100,47 @@ CfgStateExample <- {
 
         _privateKeyUrl = null;
 
+        function constructor() {
+            _log = CfgStateExample.log;
+        }
+
         function init(callback) {
             projectId = GOOGLE_IOT_CORE_PROJECT_ID;
             cloudRegion = GOOGLE_IOT_CORE_CLOUD_REGION;
             registryId = GOOGLE_IOT_CORE_REGISTRY_ID;
             deviceId = GOOGLE_IOT_CORE_DEVICE_ID;
             _privateKeyUrl = PRIVATE_KEY_URL;
-            getPrivateKey(callback);
+            _getPrivateKey(callback);
         }
 
-        function getPrivateKey(callback) {
+        function _getPrivateKey(callback) {
             // You can store (with server.save(), for example) the key after it is downloaded
             // and then it can be loaded from the persistent storage
             // But here we download the key every time
 
-            CfgStateExample.log("Downloading the private key..");
-            local downloaded = function (err, data) {
+            _log("Downloading the private key..");
+            local downloaded = function(err, data) {
                 if (err != 0) {
-                    CfgStateExample.log("Private key downloading is failed: " + err, LOG_LEVEL.ERROR);
+                    _log("Private key downloading is failed: " + err, LOG_LEVEL.ERROR);
                 } else {
-                    CfgStateExample.log("Private key is loaded");
+                    _log("Private key is loaded");
                     privateKey = data;
                 }
                 callback(err);
             }.bindenv(this);
-            downloadFile(_privateKeyUrl, downloaded);
+            _downloadFile(_privateKeyUrl, downloaded);
         }
 
-        function downloadFile(url, callback) {
+        // This code is just for example. Here you can place your code which will make a call to your server.
+        // Or the server can push a key to the agent
+        function _downloadFile(url, callback) {
             local req = http.get(url);
             local sent = null;
 
-            sent = function (resp) {
+            sent = function(resp) {
                 if (resp.statuscode / 100 == 3) {
                     if (!("location" in resp.headers)) {
-                        CfgStateExample.log("Downloading is failed: redirective response does not contain \"location\" header", LOG_LEVEL.ERROR);
+                        _log("Downloading is failed: redirective response does not contain \"location\" header", LOG_LEVEL.ERROR);
                         callback(resp.statuscode, null);
                         return;
                     }
@@ -178,94 +196,112 @@ CfgStateExample <- {
 
     // This class implements the business-logic of the application
     App = class {
+        _log = null;
+
         _googleIoTCoreClient = null;
         _appSettings         = null;
         _deviceCommunicator  = null;
 
-        function start() {
+        _reconnectTimer      = null;
+
+        function constructor() {
+            _log = CfgStateExample.log;
             _appSettings = CfgStateExample.AppSettings();
             _deviceCommunicator = CfgStateExample.DeviceCommunicator();
+        }
 
-            local settingsLoaded = function (err) {
+        function start() {
+            local settingsLoaded = function(err) {
                 if (err != 0) {
                     // You can report to the imp-device about an important error
                     _deviceCommunicator.sendError(ERROR_CANNOT_INIT_SETTINGS);
                     return;
                 }
-                initApp();
+                _initApp();
             }.bindenv(this);
 
             _appSettings.init(settingsLoaded);
         }
 
-        function initApp() {
+        function _initApp() {
             _googleIoTCoreClient = GoogleIoTCore.Client(_appSettings.projectId,
                                                         _appSettings.cloudRegion,
                                                         _appSettings.registryId,
                                                         _appSettings.deviceId,
                                                         _appSettings.privateKey,
-                                                        onConnected.bindenv(this),
-                                                        onDisconnected.bindenv(this));
+                                                        _onConnected.bindenv(this),
+                                                        _onDisconnected.bindenv(this));
 
             _googleIoTCoreClient.connect();
 
             // We want to report all state updates to the Google IoT Core cloud
-            _deviceCommunicator.setStateHandler(reportState.bindenv(this));
+            _deviceCommunicator.setStateHandler(_reportState.bindenv(this));
 
             // Here you can initialize your application specific objects
         }
 
-        function onConfigReceived(config) {
-            CfgStateExample.log("Configuration received: " + config.tostring());
+        function _onConfigReceived(config) {
+            _log("Configuration received: " + config.tostring());
             // Here you can do some actions according to the configuration received
             // We will simply send the configuration to the imp-device
             _deviceCommunicator.sendConfiguration(config);
         }
 
-        function reportState(data) {
-            CfgStateExample.log("Reporting new state..");
-            _googleIoTCoreClient.reportState(data, onStateReported.bindenv(this));
+        function _reportState(data) {
+            _log("Reporting new state..");
+            _googleIoTCoreClient.reportState(data, _onStateReported.bindenv(this));
         }
 
-        function onStateReported(data, error) {
+        function _onStateReported(data, error) {
             if (error != 0) {
                 // Here you can handle received error code
-                CfgStateExample.log("Report state error: code = " + error, LOG_LEVEL.ERROR);
+                _log("Report state error: code = " + error, LOG_LEVEL.ERROR);
                 return;
             }
-            CfgStateExample.log("State has been reported!");
+            _log("State has been reported!");
         }
 
-        function onConnected(error) {
+        function _onConnected(error) {
             if (error != 0) {
-                CfgStateExample.log("Can't connect: " + error, LOG_LEVEL.ERROR);
+                _log("Can't connect: " + error, LOG_LEVEL.ERROR);
                 // You can report to the imp-device about an important error
                 _deviceCommunicator.sendError(ERROR_CANNOT_CONNECT);
                 // Wait and try to connect again
-                CfgStateExample.log("Trying to connect again..");
-                imp.wakeup(DELAY_RECONNECT, _googleIoTCoreClient.connect.bindenv(_googleIoTCoreClient));
+                _log("Trying to connect again..");
+                _reconnect();
             } else {
-                CfgStateExample.log("Connected successfully!");
-                CfgStateExample.log("Enabling configuration updates receiving..");
-                _googleIoTCoreClient.enableCfgReceiving(onConfigReceived.bindenv(this), onCfgEnabled.bindenv(this));
+                _log("Connected successfully!");
+                _log("Enabling configuration updates receiving..");
+                _googleIoTCoreClient.enableCfgReceiving(_onConfigReceived.bindenv(this), _onCfgEnabled.bindenv(this));
             }
         }
 
-        function onCfgEnabled(error) {
+        function _reconnect() {
+            if (_reconnectTimer != null) {
+                return;
+            }
+            local connect = function() {
+                _reconnectTimer = null;
+                _googleIoTCoreClient.connect();
+            }.bindenv(this);
+            _reconnectTimer = imp.wakeup(DELAY_RECONNECT, connect);
+        }
+
+        function _onCfgEnabled(error) {
             if (error != 0) {
                 // Here you can handle received error code
                 // For example, if it is an MQTT-specific error, you can just try again or reconnect and then try again
-                CfgStateExample.log("Can't enable configuration receiving: " + error, LOG_LEVEL.ERROR);
+                _log("Can't enable configuration receiving: " + error, LOG_LEVEL.ERROR);
                 return;
             }
-            CfgStateExample.log("Successfully enabled!");
+            _log("Successfully enabled!");
         }
 
-        function onDisconnected(error) {
-            CfgStateExample.log("Disconnected: " + error);
+        function _onDisconnected(error) {
+            _log("Disconnected: " + error);
             if (error != 0) {
                 // Wait and reconnect if it was an unexpected disconnection
-                CfgStateExample.log("Trying to reconnect..");
+                _log("Trying to reconnect..");
                 imp.wakeup(DELAY_RECONNECT, _googleIoTCoreClient.connect.bindenv(_googleIoTCoreClient));
             }
         }

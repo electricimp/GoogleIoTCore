@@ -129,7 +129,7 @@ class GoogleIoTCore.Client {
     function register(iss, secret, publicKey, onRegistered = null, name = null, keyFormat = null) {
         local token = null;
 
-        local getDeviceDone = function (err, respBody) {
+        local getDeviceDone = function(err, respBody) {
             if (err != 0) {
                 _log("Can't get device data. Code = " + err + ". Body = " + respBody);
                 onRegistered && onRegistered(GOOGLE_IOT_CORE_ERROR_GENERAL);
@@ -140,7 +140,7 @@ class GoogleIoTCore.Client {
                 // Device is not found
                 _log("Creating device...");
 
-                local created = function (err, respBody) {
+                local created = function(err, respBody) {
                     if (err == 0) {
                         _log("Device has been created successfully");
                         onRegistered && onRegistered(0);
@@ -165,7 +165,7 @@ class GoogleIoTCore.Client {
             }
         }.bindenv(this);
 
-        local getTokenDone = function (err, oatoken) {
+        local getTokenDone = function(err, oatoken) {
             if (err != 0) {
                 onRegistered && onRegistered(GOOGLE_IOT_CORE_ERROR_GENERAL);
                 return;
@@ -374,7 +374,7 @@ class GoogleIoTCore.Client {
 
         local req = http.get(url, headers);
 
-        local sent = function (resp) {
+        local sent = function(resp) {
             if (resp.statuscode == 404) {
                 // We have not found any device, it is OK
                 callback(0, null);
@@ -419,7 +419,7 @@ class GoogleIoTCore.Client {
 
         local req = http.post(url, headers, data);
 
-        local sent = function (resp) {
+        local sent = function(resp) {
             if (_statusIsOk(resp.statuscode)) {
                 callback(0, null);
             } else {
@@ -604,7 +604,7 @@ class GoogleIoTCore.MqttTransport {
 
         _state = MQTT_TRANSPORT_STATE.CONNECTING;
 
-        local tokenReady = function () {
+        local tokenReady = function() {
             _mqttCreds = {
                 "username" : "useless",
                 "password" : _jwtToken,
@@ -650,7 +650,7 @@ class GoogleIoTCore.MqttTransport {
         local topic = _topics.pubTelemetry + (subfolder != null ? "/" + subfolder : "");
         local mqttMsg = _mqttclient.createmessage(topic, data, _msgOptions);
 
-        local msgSentCb = function (err) {
+        local msgSentCb = function(err) {
             if (reqId in _pubTelemetryReqs) {
                 delete _pubTelemetryReqs[reqId];
                 _refreshingPaused && _continueRefreshing();
@@ -681,7 +681,7 @@ class GoogleIoTCore.MqttTransport {
             return;
         }
 
-        local doneCb = function (err) {
+        local doneCb = function(err) {
             if (_isSubscribing) {
                 _onConfigEnabledCb = null;
                 _isSubscribing = false;
@@ -700,7 +700,7 @@ class GoogleIoTCore.MqttTransport {
         if (disable) {
             _mqttclient.unsubscribe(topic, doneCb);
         } else {
-            local subscribedCb = function (err, qos) {
+            local subscribedCb = function(err, qos) {
                 doneCb(err);
             }.bindenv(this);
 
@@ -730,7 +730,7 @@ class GoogleIoTCore.MqttTransport {
         local topic = _topics.reportState;
         local mqttMsg = _mqttclient.createmessage(topic, state, _msgOptions);
 
-        local msgSentCb = function (err) {
+        local msgSentCb = function(err) {
             if (reqId in _reportStateReqs) {
                 delete _reportStateReqs[reqId];
                 _refreshingPaused && _continueRefreshing();
@@ -754,7 +754,7 @@ class GoogleIoTCore.MqttTransport {
         if (_isRefreshingToken) {
             if (err == 0) {
                 _log("Reconnected with new token!");
-                local resubscribed = function (err) {
+                local resubscribed = function(err) {
                     _isRefreshingToken = false;
                     if (err == 0) {
                         _refreshTokenTimer = imp.wakeup(_timeBeforeRefreshing(), _refreshToken.bindenv(this));
@@ -814,12 +814,12 @@ class GoogleIoTCore.MqttTransport {
         _log("Refreshing token...");
         _isRefreshingToken = true;
 
-        local disconnected = function () {
+        local disconnected = function() {
             _log("Disconnected");
             _mqttclient.connect(_options.url, _mqttClientId, _mqttCreds);
         }.bindenv(this);
 
-        local tokenReady = function () {
+        local tokenReady = function() {
             _mqttCreds.password = _jwtToken;
             _mqttclient.disconnect(disconnected);
         }.bindenv(this);
@@ -848,7 +848,7 @@ class GoogleIoTCore.MqttTransport {
 
         local topic = _topics.configuration;
 
-        local subscribedCb = function (err, qos) {
+        local subscribedCb = function(err, qos) {
             if (err == 0) {
                 _log("Resubscribed");
             }
@@ -972,7 +972,7 @@ class GoogleIoTCore.MqttTransport {
             throw "Token maker is not set";
         }
 
-        local tokenMade = function (token) {
+        local tokenMade = function(token) {
             _jwtToken = token.jwtToken;
             _jwtExpiresAt = token.jwtExpiresAt;
             callback();
