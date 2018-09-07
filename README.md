@@ -198,7 +198,7 @@ Note, Google IoT Core does not support the `retain` MQTT flag.
 
 ### GoogleIoTCore.Client Class ###
 
-#### Constructor: GoogleIoTCore.Client(*projectId, cloudRegion, registryId, deviceId, privateKey[, onConnected[, onDisconnected[, options]]]*) ####
+#### Constructor: GoogleIoTCore.Client(*projectId, cloudRegion, registryId, deviceId, privateKey[, onConnected[, onDisconnected[, transport[, options]]]]*) ####
 
 This method returns a new GoogleIoTCore.Client instance.
 
@@ -211,6 +211,7 @@ This method returns a new GoogleIoTCore.Client instance.
 | *privateKey* | String | Yes | [Private key](https://cloud.google.com/iot/docs/how-tos/credentials/keys). |
 | [*onConnected*](#callback-onconnectederror) | Function | Optional | Callback called every time the client is connected. |
 | [*onDisconnected*](#callback-ondisconnectederror) | Function | Optional | Callback called every time the client is disconnected. |
+| *transport* | GoogleIoTCore.\*Transport  | Optional | Instance of GoogleIoTCore.\*Transport class. Default transport is [GoogleIoTCore.MqttTransport](#googleiotcoremqtttransport-class) with default configuration. |
 | [*options*](#options-1) | Table | Optional | Key-value table with additional settings. |
 
 ##### Callback: onConnected(*error*) #####
@@ -342,30 +343,15 @@ function onRegistered(err) {
 }
 ```
 
-#### connect(*[transport]*) ####
+#### connect() ####
 
 This method opens a connection to Google IoT Core.
 
 If already connected, the [*onConnected*](#callback-onconnectederror) callback will be called with the `GOOGLE_IOT_CORE_ERROR_ALREADY_CONNECTED` error.
 
-Default transport is [GoogleIoTCore.MqttTransport](#googleiotcoremqtttransport-class) with default configuration.
-
 Google IoT Core supports only one connection per device.
 
 The method returns nothing. A result of the operation may be obtained via the [*onConnected*](#callback-onconnectederror) callback specified in the client's constructor or set by calling [setOnConnected()](#setonconnectedcallback) method.
-
-| Parameter | Data Type | Required? | Description |
-| --- | --- | --- | --- |
-| *transport* | GoogleIoTCore.\*Transport  | Optional | Instance of GoogleIoTCore.\*Transport class. |
-
-```squirrel
-transportOptions <- {
-    "qos" : 1
-};
-transport <- GoogleIoTCore.MqttTransport(transportOptions);
-
-client.connect(transport);
-```
 
 #### disconnect() ####
 
