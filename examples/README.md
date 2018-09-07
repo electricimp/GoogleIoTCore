@@ -4,7 +4,7 @@ This document describes the example applications provided with the [GoogleIoTCor
 
 ## Telemetry Example ##
 
-This application is an example of a quick prototype, POC or a simple demo. For an example of a more production oriented application see [Configuration And State Example](#configuration-and-state-example).
+This application is an example of a quick prototype, POC or a simple demo. For an example of a more production-oriented application see [Configuration And State Example](#configuration-and-state-example).
 
 The example:
 - Downloads public and private keys using the provided URLs. All other configuration settings are hardcoded in the example's code. 
@@ -18,18 +18,18 @@ See [Telemetry Example Setup and Run](#telemetry-example-setup-and-run).
 
 ## Configuration And State Example ##
 
-This is an example of a more production oriented application. It has a design which may be used in a real production code, includes additional comments with production-related hints.
+This is an example of a more production-oriented application. It has a design which may be used in a real production code, includes additional comments with production-related hints.
 
 This application:
 - Assumes a device is already registered in the Google IoT Core platform, eg. by a production server.
 - Uses the minimum settings required for the application initialization.
-- After the first start, downloads the application settings, eg. from the production server, which URL is pre-hardcoded in the application (for the simplicity, only a private key is downloaded from the URL but all other settings are hardcoded). After the first initialization all settings may be stored in the imp-agent and after the application restart downloaded from the store (not implemented for the simplicity).
+- After the first start, downloads the application settings, eg. from the production server, which URL is pre-hardcoded in the application (for the simplicity, only a private key is downloaded from the URL but all other settings are hardcoded). After the first initialization, all settings may be stored in the imp-agent and after the application restart downloaded from the store (not implemented for the simplicity).
 - Connects to the Google IoT Core.
 - Enables "Configuration updates receiving" feature.
 - When a new Configuration is received from the Google IoT Core, sends it to the imp-device and waits for a new state from the imp-device. When the new state is received from the imp-device, reports it as the device state to the Google IoT Core (for the simplicity, a real communication with the imp-device is not implemented).
 - Logs all errors and other significant events to the production server or other logging utility (for the simplicity, logs to the imp log stream). Signals some of the errors to the imp-device, eg. to display them (a real communication with the imp-device is not implemented).
 
-This application does not demonstrate sending Telemetry events to the Google IoT Core. [Telemetry Example](#telemetry-example) demostrates that feature.
+This application does not demonstrate sending Telemetry events to the Google IoT Core. [Telemetry Example](#telemetry-example) demonstrates that feature.
 
 Source code: [CfgState.agent.nut](./CfgState.agent.nut)
 
@@ -64,9 +64,9 @@ See [Configuration And State Example Setup and Run](#configuration-and-state-exa
  - *PUBLIC_KEY_URL*: copy [this link](./keys/pub_key.pem?raw=true)
  - *PRIVATE_KEY_URL*: copy [this link](./keys/priv_key.pem?raw=true)
  
-**Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance to your data.
+**Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance with your data.
 
-**Note**: You may generate and use your own public-private keys pair. [This is](https://cloud.google.com/iot/docs/quickstart#add_a_public_key_to_the_device) an example of how to generate the keys. After that you should upload the keys somewhere and set the links to the keys as *\*_KEY_URL* variables.
+**Note**: You may generate and use your own public-private keys pair. Please read the [RSA Keys Generation](#rsa-keys-generation) section. After that, you should upload the keys somewhere and set the links to the keys as *\*_KEY_URL* variables.
 
 ![TelemetrySetConst](./example_imgs/TelemetrySetConst.png)
 
@@ -101,13 +101,13 @@ See [Configuration And State Example Setup and Run](#configuration-and-state-exa
  - *GOOGLE_IOT_CORE_DEVICE_ID*: set the value from the step 4
  - *PRIVATE_KEY_URL*: copy [this link](./keys/priv_key.pem?raw=true)
  
-**Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance to your data.
+**Note**: You may use other names, ID's, etc. when following the instructions in Google IoT Console but make sure you set the constants in accordance with your data.
 
 ![CfgStateSetConst](./example_imgs/CfgStateSetConst.png)
 
 10. Click **Build and Force Restart**.
 
-11. Check from the logs in the IDE that connection is established and configuration updates receiving is enabled. Also the current configuration may be received - it is empty by default.
+11. Check from the logs in the IDE that connection is established and configuration updates receiving is enabled. Also, the current configuration may be received - it is empty by default.
 
 ![CfgStateLogs](./example_imgs/CfgStateRun.png)
 
@@ -182,7 +182,7 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
 1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project
 
-2. Click **IAM & Admin**, then **Service Accounts** from left side menu
+2. Click **IAM & Admin**, then **Service Accounts** from the left side menu
 
 ![ServiceAccounts](./example_imgs/ServiceAccounts.png)
 
@@ -192,7 +192,7 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
 4. Enter a new service account name in the corresponding field: example-serv-acc
 
-5. From the **Role** dropdown menu, select **Cloud IoT Provisioner**
+5. From the **Role** drop-down menu, select **Cloud IoT Provisioner**
 
 6. Check the **Furnish a new private key** button. Leave all other checkboxes untouched
 
@@ -215,7 +215,7 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
   "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/test-account%40@test-project.iam.gserviceaccount.com" }
 ```
 
-9. Make a note of **client_email** (it is *GOOGLE_ISS*) and **private_key** (it is *GOOGLE_SECRET_KEY*) from downloaded JSON file. They will be needed to setup and run your application.
+9. Make a note of **client_email** (it is *GOOGLE_ISS*) and **private_key** (it is *GOOGLE_SECRET_KEY*) from the downloaded JSON file. They will be needed to setup and run your application.
 
 ### Create Device ###
 
@@ -231,7 +231,7 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
  - **Public key format**: RS256_X509
  - **Public key value**: copy the public key from [here](./keys/pub_key.pem?raw=true)
  
-**Note**: You may generate and use your own public-private keys pair. [This is](https://cloud.google.com/iot/docs/quickstart#add_a_public_key_to_the_device) an example of how to generate the keys.
+**Note**: You may generate and use your own public-private keys pair. Please read the [RSA Keys Generation](#rsa-keys-generation) section.
  
 4. Click **Create**.
 
@@ -276,3 +276,13 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 ![ConfStateHistory](./example_imgs/ConfStateHistory.png)
 
 **Note**: By default, all items are shown in **Base64** format. You can click on each item and choose **Text** format.
+
+### RSA Keys Generation ###
+
+The Google IoT Core platform suggests [two formats of RSA public key](https://cloud.google.com/iot/docs/reference/cloudiot/rest/v1/projects.locations.registries.devices#publickeyformat):
+ - `RSA_PEM`
+ - `RSA_X509_PEM`
+
+The `RSA_X509_PEM` format is used by default in the [GoogleIoTCore library](../README.md) and in these examples. Keep in mind that keys of this type always have an expiration date. [Here](https://cloud.google.com/iot/docs/how-tos/credentials/keys#generating_an_rs256_key_with_a_self-signed_x509_certificate) you can find an example of how to generate such key pair.
+
+The `RSA_PEM` format is also supported by the [GoogleIoTCore library](../README.md). These keys don't have an expiration date. An example of how to generate is [here](https://cloud.google.com/iot/docs/how-tos/credentials/keys#generating_an_rs256_key).
