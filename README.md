@@ -44,7 +44,7 @@ Finally, you should decide which [Transport](#transport) your application/device
 
 To start working with the library you should create an instance of the GoogleIoTCore.Client class. Most of the settings mentioned in the [Prerequisites](#prerequisites) section are passed to the client's constructor. Also, the constructor has additional options which controls the behavior of the library.
 
-It is possible to instantiate several clients (TODO - true?) but note that Google IoT Core supports only one [connection](#connection) per device.
+It is possible to instantiate several clients but note that Google IoT Core supports only one [connection](#connection) per device.
 
 ### Authentication and Registration ###
 
@@ -90,9 +90,11 @@ Note, the current version of the library supports [MQTT transport](https://cloud
 
 Google IoT Core supports [HTTP and MQTT protocols](https://cloud.google.com/iot/docs/concepts/protocols) for communication.
 
-Before connecting the instantiated GoogleIoTCore.Client to Google IoT Core you should create and initialize a transport object. Eg. create an instance of the GoogleIoTCore.MqttTransport class.
+Before connecting the instantiated GoogleIoTCore.Client to Google IoT Core you may create and initialize a transport object. Eg. create an instance of the GoogleIoTCore.MqttTransport class.
 
-The transport may have additional settings which controls it's behavior.
+The transport may have additional settings which controls it's behavior. 
+
+If a transport is not created and not explicitly specified during [connection](#connection), the library uses MQTT transport with default settings.
 
 ### Connection ###
 
@@ -297,10 +299,10 @@ This complementary method registers the device in Google IoT Core.
 
 It makes the minimal required registration - only one private-public key pair, without expiration setting, is registered.
 
-First, the method attempts to find already existing device with the device ID specified in the client’s constructor and compare that device’s public key with the key passed in. And then:
+First, the method attempts to find already existing device with the device ID specified in the client’s constructor and compare that device's public key with the key passed in. And then:
 - If no device found, the method tries to register the new one.
 - Else if a device is found and the keys are identical, the method succeeds, assuming the device is already registered.
-- Otherwise, the method returns the `GOOGLE_IOT_CORE_ERROR_ALREADY_REGISTERED` error. (TODO - Not confusing?)
+- Otherwise it is assumed that **another** device is registered with the same ID and the method returns the `GOOGLE_IOT_CORE_ERROR_ALREADY_REGISTERED` error.
 
 **If you are going to use this method, add** `#require "OAuth2.agent.lib.nut:2.0.0"` **to the top of your agent code**.
 
@@ -308,8 +310,8 @@ The method returns nothing. A result of the operation may be obtained via the [*
 
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
-| *iss* | String  | Yes | [JWT issuer](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#jwt-auth). TODO - haven't found a better link |
-| *secret* | String  | Yes | [JWT sign secret key](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#jwt-auth). TODO - haven't found a better link |
+| *iss* | String  | Yes | [JWT issuer](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#jwt-auth). |
+| *secret* | String  | Yes | [JWT sign secret key](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#jwt-auth). |
 | *publicKey* | String  | Yes | [Public key](https://cloud.google.com/iot/docs/how-tos/credentials/keys) for the device. It must correspond to the private key set for the client. |
 | *[onRegistered](#callback-onregisterederror)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
 | *name* | String | Optional | [Device name](https://cloud.google.com/iot/docs/reference/cloudiot/rest/v1/projects.locations.registries.devices#resource-device). |
@@ -398,14 +400,9 @@ This callback is called when the data is considered as published or an error occ
 | *data* | String or Blob | The original *data* passed in to the [publish()](#publishdata-subfolder-onpublished) method. |
 | *[error](#error-codes)* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
 
-TODO - data is really String or Blob? or Blob always?
-
 ```squirrel
 // Publish a telemetry event without a callback
 client.publish("some data", null);
-
-// Publish a telemetry event with a callback
-client.publish("some data", null, onPublished);
 
 function onPublished(data, err) {
     if (err != 0) {
@@ -416,6 +413,9 @@ function onPublished(data, err) {
     }
     server.log("Telemetry has been published. Data = " + data);
 }
+
+// Publish a telemetry event with a callback
+client.publish("some data", null, onPublished);
 ```
 
 #### enableCfgReceiving(*onReceive[, onDone]*) ####
@@ -510,7 +510,7 @@ An *Integer* error code which specifies a concrete error (if any) happened durin
 
 | Error Code | Error Name | Description |
 | --- | --- | --- |
-| -99..0 and 128 | - | [MQTT-specific](https://developer.electricimp.com/api/mqtt) errors. |
+| -99..-1 and 128 | - | [MQTT-specific](https://developer.electricimp.com/api/mqtt) errors. |
 | 1000 | GOOGLE_IOT_CORE_ERROR_NOT_CONNECTED | The client is not connected. |
 | 1001 | GOOGLE_IOT_CORE_ERROR_ALREADY_CONNECTED | The client is already connected. |
 | 1002 | GOOGLE_IOT_CORE_ERROR_OP_NOT_ALLOWED_NOW | The operation is not allowed now. E.g. the same operation is already in process. |
