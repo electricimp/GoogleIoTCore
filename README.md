@@ -319,8 +319,6 @@ const GOOGLE_ISS = "test-serv-acc@studied-temple-212412.iam.gserviceaccount.com"
 const GOOGLE_SECRET_KEY = "-----BEGIN PRIVATE KEY-----\nMII ..... QbDgw==\n-----END PRIVATE KEY-----\n";
 const GOOGLE_IOT_CORE_PUBLIC_KEY = "-----BEGIN CERTIFICATE-----\nMIIC+DCCAeCg...neGy5zYVE=\n-----END CERTIFICATE-----";
 
-client.register(GOOGLE_ISS, GOOGLE_SECRET_KEY, GOOGLE_IOT_CORE_PUBLIC_KEY, onRegistered);
-
 function onRegistered(err) {
     if (err != 0) {
         server.error("Registration error: code = " + err);
@@ -329,6 +327,8 @@ function onRegistered(err) {
     server.log("Successfully registered!");
     client.connect();
 }
+
+client.register(GOOGLE_ISS, GOOGLE_SECRET_KEY, GOOGLE_IOT_CORE_PUBLIC_KEY, onRegistered);
 ```
 
 #### connect() ####
@@ -413,7 +413,7 @@ This callback is called every time [a configuration](https://cloud.google.com/io
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
-| *configuration* | Blob(TODO: check!) | [Configuration](https://cloud.google.com/iot/docs/concepts/devices#device_configuration). An arbitrary user-defined blob. Application can use the [Serializer](https://developer.electricimp.com/libraries/utilities/serializer) library to convert Blobs to Squirrel objects. |
+| *configuration* | Blob | [Configuration](https://cloud.google.com/iot/docs/concepts/devices#device_configuration). An arbitrary user-defined blob. Application can use the [Serializer](https://developer.electricimp.com/libraries/utilities/serializer) library to convert Blobs to Squirrel objects. |
 
 ##### Callback: onDone(*error*) #####
 
@@ -459,8 +459,6 @@ This callback is called when the state is considered as reported or an error occ
 | --- | --- | --- |
 | *state* | String or Blob | The original *state* passed in to the [reportState()](#reportstatestate-onreported) method. |
 | *[error](#error-codes)* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
-
-TODO - state is really String or Blob? or Blob always?
 
 ```squirrel
 client.reportState("some data", onReported);
