@@ -42,7 +42,7 @@ Finally, you should decide which transport your application/device is going to u
 
 ### Instantiation ###
 
-To start working with the library you should create an instance of the GoogleIoTCore.Client class. Most of the settings mentioned in the [Prerequisites](#prerequisites) section are passed to the client's constructor. Also, the constructor has additional options which control the behavior of the library.
+To start working with the library you should create an instance of the [GoogleIoTCore.Client](#googleiotcoreclient-class) class. All settings mentioned in the [Prerequisites](#prerequisites) section are passed to the client's constructor. Also, the constructor has additional options which control the behavior of the library.
 
 It is possible to instantiate several clients but note that Google IoT Core supports only one [connection](#connection) per device.
 
@@ -60,22 +60,22 @@ Example of how public/private RSA key pair can be created is described [here](ht
 It is recommended that every device should have its own public/private key pair. Moreover, several key pairs may exist for the same device and be rotated periodically. Also, a key pair may have an expiration time. These and other security recommendations from Google are described [here](https://cloud.google.com/iot/docs/concepts/device-security#device_security_recommendations).
 
 Assuming your project has a server/cloud, a device initialization process may look like this:
-1. When your application on the device starts for the first time it connects to your server and, optionally, passes the Device ID (eg. it can be generated from imp-agent ID or any other unique ID in accordance with [requirements](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements)).
+1. When your application on the device starts for the first time it connects to your server and, optionally, passes the Device ID (eg. it can be generated from imp-agent ID or any other unique ID in accordance with the Google [requirements](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements); note, the first character must be a letter).
 1. If the Device ID is not received from the device, the server generates a unique Device ID.
 1. The server creates public/private RSA key pair(s) for the device.
 1. The server registers the device in Google IoT Core.
 1. The server passes the private key(s), the Device ID (if it was not received from the device), as well as other settings mentioned in the [Prerequisites](#prerequisites) section and which are not pre-hardcoded, to your application.
-1. The application initializes the library by passing the settings to the GoogleIoTCore.Client constructor.
+1. The application initializes the library by passing the settings to the [GoogleIoTCore.Client constructor](#constructor-googleiotcoreclientprojectid-cloudregion-registryid-deviceid-privatekey-onconnected-ondisconnected-transport-options).
 1. The settings must be passed to the library after every restart of the application. For all non-hardcoded settings you may decide either to obtain them from the server after every restart, or save them locally in a non-volatile memory.
-1. New private key should be obtained from the server, if the existing key has an expiration time and is expired.
+1. New private key should be obtained from the server, if the existing key has an expiration time and is about to expire.
 
-The GoogleIoTCore.Client constructor accepts only one private key. At any time your application can call [setPrivateKey()](#setprivatekeyprivatekey) method to change the current private key, eg. for a rotation purpose or when the key is expired
+The GoogleIoTCore.Client constructor accepts only one private key. At any time your application can call [setPrivateKey()](#setprivatekeyprivatekey) method to change the current private key, eg. for a rotation purpose or when the key is expired.
 
 See also [Automatic JWT Refreshing](#automatic-jwt-refreshing) section.
 
 #### Device Self-Registration ####
 
-The library includes a complementary [register()](#registeriss-secret-publickey-onregistered-name-keyformat) method to self-register a device in Google IoT Core. It may be used for quick prorotypes, Proof of Concepts and demos. It is not recommended for production applications.
+The library includes a complementary [register()](#registeriss-secret-publickey-onregistered-name-keyformat) method to self-register a device in Google IoT Core. It may be used for quick prorotypes, Proof of Concepts and demos. It is not recommended for production-oriented applications.
 
 The [register()](#registeriss-secret-publickey-onregistered-name-keyformat) method requires additional settings to be pre-hardcoded or obtained by an application, eg. from your server/cloud:
 - [JWT issuer](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#jwt-auth).
@@ -106,7 +106,7 @@ client.register(GOOGLE_ISS, GOOGLE_SECRET_KEY, GOOGLE_IOT_CORE_PUBLIC_KEY, onReg
 
 [Telemetry Publishing](#telemetry-publishing), [State Reporting](#state-reporting) and [Configuration Receiving](#configuration-receiving) functionalities require the library to be connected to Google IoT Core.
 
-To connect the newly instantiated GoogleIoTCore.Client call the [connect()](#connect) method. Google IoT Core supports only one connection per device.
+To connect the newly instantiated [GoogleIoTCore.Client](#googleiotcoreclient-class) call the [connect()](#connect) method. Google IoT Core supports only one connection per device.
 
 Your application can monitor a connection state using the [isConnected()](#isconnected) method or the optional [onConnected()](#callback-onconnectederror) and [onDisconnected()](#callback-ondisconnectederror) callbacks. The callbacks may be specified in the [GoogleIoTCore.Client constructor](#constructor-googleiotcoreclientprojectid-cloudregion-registryid-deviceid-privatekey-onconnected-ondisconnected-transport-options) or set/reset later using the [setOnConnected()](#setonconnectedcallback), [setOnDisconnected()](#setondisconnectedcallback) methods.
 
@@ -156,7 +156,7 @@ client.connect();
 
 ### Automatic JWT Refreshing ###
 
-[JSON Web Token](https://cloud.google.com/iot/docs/how-tos/credentials/jwts) always has an expiration time (do not mess it with a private/public key pair expiration time). If the token is expired, Google IoT Core disconnects the device. To prevent the disconnection the token must be updated before its expiration.
+[JSON Web Token](https://cloud.google.com/iot/docs/how-tos/credentials/jwts) always has an expiration time (do not mess it with a private/public key expiration time). If the token is expired, Google IoT Core disconnects the device. To prevent the disconnection the token must be updated before its expiration.
 
 The library implements the token updating algorithm. It is enabled by default.
 
@@ -173,7 +173,7 @@ The library does all these operations automatically and invisibly to an applicat
 
 To calculate a new token the library uses the current private key provided to the client. At any time the key can be updated by an application by calling the [setPrivateKey()](#setprivatekeyprivatekey) method. The new key will be used during the next updating of the token.
 
-To disable the automatic token updating algorithm you can set the `tokenAutoRefresh` [client's option](#options-1) in the GoogleIoTCore.Client constructor to `False`.
+To disable the automatic token updating algorithm you can set the `tokenAutoRefresh` [client's option](#options-1) in the [GoogleIoTCore.Client constructor](#constructor-googleiotcoreclientprojectid-cloudregion-registryid-deviceid-privatekey-onconnected-ondisconnected-transport-options) to `False`.
 You may need this, eg. to rotate the private key with every token update. In this case, your application may implement the following logic:
 1. Set [onConnected()](#callback-onconnectederror) and [onDisconnected()](#callback-ondisconnectederror) callbacks.
 1. When the current JSON Web token is expired, Google IoT Core disconnects the device.
@@ -218,7 +218,7 @@ This functionality may work in a pair with [Configuration Receiving](#configurat
 
 #### Example ####
 ```squirrel
-client.reportState("some data", onReported);
+client.reportState("some state", onReported);
 
 function onReported(state, err) {
     if (err != 0) {
@@ -236,11 +236,11 @@ function onReported(state, err) {
 Call the [enableCfgReceiving()](#enablecfgreceivingonreceive-ondone) method to enable/re-enable/disable it.
 
 Configuration Receiving functionality may be used to pass an application-specific data from Google IoT Core to a device, eg.:
-- new configuration (eg. settings, firmware, etc.);
-- commands to execute (eg. reboot, etc.);
-- any other data (eg. messages, etc.).
+- a new configuration (settings, firmware, etc.);
+- a command to execute (reboot, etc.);
+- any other data (messages, etc.).
 
-If a request (eg. configuration or command) from Google IoT Core assumes an answer from a device, then, usually, [State Reporting](#state-reporting) functionality is used to provide an answer. But this is fully application-specific.
+If a request (eg. a configuration or a command) from Google IoT Core assumes an answer from a device, then, usually, [State Reporting](#state-reporting) functionality is used to provide an answer. But this is fully application-specific.
 
 #### Example ####
 ```squirrel
@@ -306,7 +306,7 @@ This method returns a new GoogleIoTCore.Client instance.
 | *privateKey* | String | Yes | [Private key](https://cloud.google.com/iot/docs/how-tos/credentials/keys). |
 | [*onConnected*](#callback-onconnectederror) | Function | Optional | Callback called every time the client is connected. |
 | [*onDisconnected*](#callback-ondisconnectederror) | Function | Optional | Callback called every time the client is disconnected. |
-| *transport* | GoogleIoTCore.\*Transport  | Optional | Instance of GoogleIoTCore.\*Transport class. Default transport is [GoogleIoTCore.MqttTransport](#googleiotcoremqtttransport-class) with default configuration. |
+| *transport* | GoogleIoTCore.\*Transport  | Optional | Instance of GoogleIoTCore.\*Transport class. Default transport is [GoogleIoTCore.MqttTransport](#googleiotcoremqtttransport-class) with default [MQTT options](#options). |
 | [*options*](#options-1) | Table | Optional | Key-value table with additional settings. |
 
 ##### Callback: onConnected(*error*) #####
@@ -333,8 +333,8 @@ These additional settings affect the client's behavior and the operations. Every
 
 | Key (String) | Value Type | Default | Description |
 | --- | --- | --- | --- |
-| "maxPendingSetStateRequests" | Integer | 3 | Maximum amount of pending [Set State operations](#reportstatestate-onreported). |
-| "maxPendingPublishTelemetryRequests" | Integer | 3 | Maximum amount of pending [Publish Telemetry operations](#publishdata-subfolder-onPublished). |
+| "maxPendingSetStateRequests" | Integer | 3 | Maximum amount of pending [State Reporting operations](#reportstatestate-onreported). |
+| "maxPendingPublishTelemetryRequests" | Integer | 3 | Maximum amount of pending [Telemetry Publishing operations](#publishdata-subfolder-onPublished). |
 | "tokenTTL" | Integer | 3600 | [JWT token's time to live](https://cloud.google.com/iot/docs/how-tos/credentials/jwts#required_claims), in seconds. |
 | "tokenAutoRefresh" | Boolean | True | Enable [Automatic JWT Token Refreshing](#automatic-jwt-token-refreshing). |
 
@@ -486,7 +486,7 @@ An *Integer* error code which specifies a concrete error (if any) happened durin
 
 | Error Code | Error Name | Description |
 | --- | --- | --- |
-| -99..-1 and 128 | - | [MQTT-specific](https://developer.electricimp.com/api/mqtt) errors. |
+| -99..-1 and 128 | | [MQTT-specific](https://developer.electricimp.com/api/mqtt) errors. |
 | 1000 | GOOGLE_IOT_CORE_ERROR_NOT_CONNECTED | The client is not connected. |
 | 1001 | GOOGLE_IOT_CORE_ERROR_ALREADY_CONNECTED | The client is already connected. |
 | 1002 | GOOGLE_IOT_CORE_ERROR_OP_NOT_ALLOWED_NOW | The operation is not allowed now. E.g. the same operation is already in process. |
