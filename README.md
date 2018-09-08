@@ -84,6 +84,8 @@ The [register()](#registeriss-secret-publickey-onregistered-name-keyformat) meth
 
 The [register()](#registeriss-secret-publickey-onregistered-name-keyformat) method does not require the library to be [connected](#connection) to Google IoT Core.
 
+The [register()](#registeriss-secret-publickey-onregistered-name-keyformat) method requires [OAuth 2.0 library](https://github.com/electricimp/OAuth-2.0).
+
 #### Example ####
 ```squirrel
 const GOOGLE_ISS = "test-serv-acc@studied-temple-212412.iam.gserviceaccount.com";
