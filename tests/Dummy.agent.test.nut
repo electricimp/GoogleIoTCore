@@ -65,23 +65,6 @@ class DummyTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    function testConnect2() {
-        return Promise(function (resolve, reject) {
-            local callback = function (err) {
-                if (err != 0) {
-                    return resolve();
-                }
-                return reject("An error was expected!");
-            }.bindenv(this);
-            _googleIoTCoreClient.setOnConnected(callback);
-            _googleIoTCoreClient.connect(GoogleIoTCore.MqttTransport());
-        }.bindenv(this));
-    }
-
-    // function testDisconnect() {
-    //     _googleIoTCoreClient.disconnect();
-    // }
-
     function testIsConnected() {
         this.assertTrue(!_googleIoTCoreClient.isConnected());
     }

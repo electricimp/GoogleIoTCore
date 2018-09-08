@@ -109,6 +109,7 @@ class MainTestCase extends ImpTestCase {
                                                         GOOGLE_IOT_CORE_PRIVATE_KEY,
                                                         onConnected,
                                                         null,
+                                                        GoogleIoTCore.MqttTransport(),
                                                         options);
             _googleIoTCoreClient.connect();
         }.bindenv(this));
