@@ -9,7 +9,7 @@ This version of the library supports the following functionality:
 - [Receiving configurations](https://cloud.google.com/iot/docs/how-tos/config/configuring-devices) from Google IoT Core.
 - [Reporting a device state](https://cloud.google.com/iot/docs/how-tos/config/getting-state#reporting_device_state) to Google IoT Core.
 
-The library provides an opportunity to work via [different transports](https://cloud.google.com/iot/docs/concepts/protocols), but currently supports [MQTT transport](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge) only.
+The library is designed to work with [different types of transports (HTTP or MQTT)](https://cloud.google.com/iot/docs/concepts/protocols), but only [MQTT transport](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge) is implemented at this point.
 
 **To add this library to your project, add** `#require "GoogleIoTCore.agent.lib.nut:1.0.0"` **to the top of your agent code**.
 
@@ -38,11 +38,11 @@ Also, for every device you need to have:
 
 Registry ID / Device ID combination must be unique for every device in your project. More information about public/private keys and Device ID see in the [Authentication and Registration](#authentication-and-registration) section.
 
-Finally, you should decide which transport your application/device is going to use for communication with Google IoT Core. By default, MQTT transport with default [MQTT options](#TODO) is used. If you want to use non-default MQTT options, you need to create an instance of the [GoogleIoTCore.MqttTransport](#TODO) class.
+Finally, you should decide which transport your application/device is going to use for communication with Google IoT Core. By default, MQTT transport with default [MQTT options](#options) is used. If you want to use non-default MQTT options, you need to create an instance of the [GoogleIoTCore.MqttTransport](#googleiotcoremqtttransport-class) class.
 
 ### Instantiation ###
 
-To start working with the library you should create an instance of the GoogleIoTCore.Client class. Most of the settings mentioned in the [Prerequisites](#prerequisites) section are passed to the client's constructor. Also, the constructor has additional options which controls the behavior of the library.
+To start working with the library you should create an instance of the GoogleIoTCore.Client class. Most of the settings mentioned in the [Prerequisites](#prerequisites) section are passed to the client's constructor. Also, the constructor has additional options which control the behavior of the library.
 
 It is possible to instantiate several clients but note that Google IoT Core supports only one [connection](#connection) per device.
 
@@ -57,10 +57,10 @@ Private key is used on the client's (device) side to create [JSON Web Tokens](ht
 
 Example of how public/private RSA key pair can be created is described [here](https://cloud.google.com/iot/docs/how-tos/credentials/keys).
 
-It is recommended that every device should have it's own public/private key pair. Moreover, several key pairs may exist for the same device and be rotated periodically. Also, a key pair may have an expiration time. These and other security recommendations from Google are described [here](https://cloud.google.com/iot/docs/concepts/device-security#device_security_recommendations).
+It is recommended that every device should have its own public/private key pair. Moreover, several key pairs may exist for the same device and be rotated periodically. Also, a key pair may have an expiration time. These and other security recommendations from Google are described [here](https://cloud.google.com/iot/docs/concepts/device-security#device_security_recommendations).
 
 Assuming your project has a server/cloud, a device initialization process may look like this:
-1. When your application on the device starts for the first time it connects to your server and, optionally, passes the Device ID (eg. imp-agent ID or any other unique ID).
+1. When your application on the device starts for the first time it connects to your server and, optionally, passes the Device ID (eg. it can be generated from imp-agent ID or any other unique ID in accordance with [requirements](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements)).
 1. If the Device ID is not received from the device, the server generates a unique Device ID.
 1. The server creates public/private RSA key pair(s) for the device.
 1. The server registers the device in Google IoT Core.
@@ -69,36 +69,94 @@ Assuming your project has a server/cloud, a device initialization process may lo
 1. The settings must be passed to the library after every restart of the application. For all non-hardcoded settings you may decide either to obtain them from the server after every restart, or save them locally in a non-volatile memory.
 1. New private key should be obtained from the server, if the existing key has an expiration time and is expired.
 
-The GoogleIoTCore.Client constructor accepts only one private key. At any time your application can call setPrivateKey() method to change the current private key, eg. for a rotation purpose or when the key is expired
+The GoogleIoTCore.Client constructor accepts only one private key. At any time your application can call [setPrivateKey()](#setprivatekeyprivatekey) method to change the current private key, eg. for a rotation purpose or when the key is expired
 
 See also [Automatic JWT Refreshing](#automatic-jwt-refreshing) section.
 
 #### Device Self-Registration ####
 
-The library includes a complementary register() method to self-register a device in Google IoT Core. It may be used for quick prorotypes, Proof of Concepts and demos. It is not recommended for production applications.
+The library includes a complementary [register()](#registeriss-secret-publickey-onregistered-name-keyformat) method to self-register a device in Google IoT Core. It may be used for quick prorotypes, Proof of Concepts and demos. It is not recommended for production applications.
 
-The register() method requires additional settings to be pre-hardcoded or obtained by an application, eg. from your server/cloud:
+The [register()](#registeriss-secret-publickey-onregistered-name-keyformat) method requires additional settings to be pre-hardcoded or obtained by an application, eg. from your server/cloud:
 - [JWT issuer](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#jwt-auth).
 - [JWT sign secret key](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#jwt-auth).
 - Public key.
 
-The register() method does not require the library to be [connected](#connection) to Google IoT Core.
+The [register()](#registeriss-secret-publickey-onregistered-name-keyformat) method does not require the library to be [connected](#connection) to Google IoT Core.
+
+#### Example ####
+```squirrel
+const GOOGLE_ISS = "test-serv-acc@studied-temple-212412.iam.gserviceaccount.com";
+const GOOGLE_SECRET_KEY = "-----BEGIN PRIVATE KEY-----\nMII ..... QbDgw==\n-----END PRIVATE KEY-----\n";
+const GOOGLE_IOT_CORE_PUBLIC_KEY = "-----BEGIN CERTIFICATE-----\nMIIC+DCCAeCg...neGy5zYVE=\n-----END CERTIFICATE-----";
+
+function onRegistered(err) {
+    if (err != 0) {
+        server.error("Registration error: code = " + err);
+        return;
+    }
+    server.log("Successfully registered!");
+    client.connect();
+}
+
+client.register(GOOGLE_ISS, GOOGLE_SECRET_KEY, GOOGLE_IOT_CORE_PUBLIC_KEY, onRegistered);
+```
 
 ### Connection ###
 
 [Telemetry Publishing](#telemetry-publishing), [State Reporting](#state-reporting) and [Configuration Receiving](#configuration-receiving) functionalities require the library to be connected to Google IoT Core.
 
-To connect the newly instantiated GoogleIoTCore.Client call the connect() method. Google IoT Core supports only one connection per device.
+To connect the newly instantiated GoogleIoTCore.Client call the [connect()](#connect) method. Google IoT Core supports only one connection per device.
 
-Your application can monitor a connection state using the isConnected() method or the optional onConnected() and onDisconnected() callbacks. The callbacks may be specified in the GoogleIoTCore.Client constructor or set/reset later using the setOnConnected(), setOnDisconnected() methods.
+Your application can monitor a connection state using the [isConnected()](#isconnected) method or the optional [onConnected()](#callback-onconnectederror) and [onDisconnected()](#callback-ondisconnectederror) callbacks. The callbacks may be specified in the [GoogleIoTCore.Client constructor](#constructor-googleiotcoreclientprojectid-cloudregion-registryid-deviceid-privatekey-onconnected-ondisconnected-transport-options) or set/reset later using the [setOnConnected()](#setonconnectedcallback), [setOnDisconnected()](#setondisconnectedcallback) methods.
 
-At any time you can disconnect from Google IoT Core by calling the disconnect() method and reconnect by calling the connect() method again.
+At any time you can disconnect from Google IoT Core by calling the [disconnect()](#disconnect) method and reconnect by calling the [connect()](#connect) method again.
 
 Note, Google IoT Core can disconnect your device. Eg. due to the JSON Web Token expiration - see [Automatic JWT Refreshing](#automatic-jwt-refreshing) section.
 
+#### Example ####
+```squirrel
+#require "GoogleIoTCore.agent.lib.nut:1.0.0"
+
+const GOOGLE_IOT_CORE_PROJECT_ID    = "example-project-256256";
+const GOOGLE_IOT_CORE_CLOUD_REGION  = "us-central1";
+const GOOGLE_IOT_CORE_REGISTRY_ID   = "example-registry";
+const GOOGLE_IOT_CORE_DEVICE_ID     = "example-device_2";
+const GOOGLE_IOT_CORE_PRIVATE_KEY   = "-----BEGIN PRIVATE KEY-----\nMIIEvAIBAG9w...rxmClmOG==\n-----END PRIVATE KEY-----";
+
+function onConnected(err) {
+    if (err != 0) {
+        server.error("Connect failed: " + err);
+        return;
+    }
+    server.log("Connected");
+    // Here is a good place to enable configuration receiving
+}
+
+function onDisconnected(err) {
+    if (err != 0) {
+        server.error("Disconnected unexpectedly with code: " + err);
+        // Reconnect if disconnection is not initiated by application
+        client.connect();
+    } else {
+        server.log("Disconnected by application");
+    }
+}
+
+// Instantiate and connect a client
+client <- GoogleIoTCore.Client(GOOGLE_IOT_CORE_PROJECT_ID,
+                               GOOGLE_IOT_CORE_CLOUD_REGION,
+                               GOOGLE_IOT_CORE_REGISTRY_ID,
+                               GOOGLE_IOT_CORE_DEVICE_ID,
+                               GOOGLE_IOT_CORE_PRIVATE_KEY,
+                               onConnected,
+                               onDisconnected);
+client.connect();
+```
+
 ### Automatic JWT Refreshing ###
 
-[JSON Web Token](https://cloud.google.com/iot/docs/how-tos/credentials/jwts) always has an expiration time (do not mess it with a private/public key pair expiration time). If the token is expired, Google IoT Core disconnects the device. To prevent the disconnection the token must be updated before it's expiration.
+[JSON Web Token](https://cloud.google.com/iot/docs/how-tos/credentials/jwts) always has an expiration time (do not mess it with a private/public key pair expiration time). If the token is expired, Google IoT Core disconnects the device. To prevent the disconnection the token must be updated before its expiration.
 
 The library implements the token updating algorithm. It is enabled by default.
 
@@ -111,39 +169,71 @@ For MQTT Transport the token updating algorithm is the following:
 1. Subscribes to the topics which were subscribed to before the reconnection.
 1. Sets the timer for the new token expiration.
 
-The library does all these operations automatically and invisibly to an application. The onDisconnected() and onConnected() callbacks are not called. All the API calls, made by the application at the time of updating, are scheduled in a queue and processed right after the token updating algorithm is successfuly finished. If the token update fails, the onDisconnected() callback is called (if the callback has been set).
+The library does all these operations automatically and invisibly to an application. The [onDisconnected()](#callback-ondisconnectederror) and [onConnected()](#callback-onconnectederror) callbacks are not called. All the API calls, made by the application at the time of updating, are scheduled in a queue and processed right after the token updating algorithm is successfuly finished. If the token update fails, the [onDisconnected()](#callback-ondisconnectederror) callback is called (if the callback has been set).
 
-To calculate a new token the library uses the current private key provided to the client. At any time the key can be updated by an application by calling the setPrivateKey() method. The new key will be used during the next updating of the token.
+To calculate a new token the library uses the current private key provided to the client. At any time the key can be updated by an application by calling the [setPrivateKey()](#setprivatekeyprivatekey) method. The new key will be used during the next updating of the token.
 
 To disable the automatic token updating algorithm you can set the `tokenAutoRefresh` [client's option](#options-1) in the GoogleIoTCore.Client constructor to `False`.
 You may need this, eg. to rotate the private key with every token update. In this case, your application may implement the following logic:
-1. Set onConnected() and onDisconnected() callbacks.
+1. Set [onConnected()](#callback-onconnectederror) and [onDisconnected()](#callback-ondisconnectederror) callbacks.
 1. When the current JSON Web token is expired, Google IoT Core disconnects the device.
-1. The onDisconnected() callback is called by the library.
-1. Call the setPrivateKey() method to change the current private key.
-1. Call the connect() method.
-1. When the device is connected, the onConnected() callback is called by the library.
+1. The [onDisconnected()](#callback-ondisconnectederror) callback is called by the library.
+1. Call the [setPrivateKey()](#setprivatekeyprivatekey) method to change the current private key.
+1. Call the [connect()](#connect) method.
+1. When the device is connected, the [onConnected()](#callback-onconnectederror) callback is called by the library.
 1. Re-enable [Configuration Receiving](#configuration-receiving) functionality, if needed.
 
 ### Telemetry Publishing ###
 
 [Telemetry Publishing](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge#publishing_telemetry_events) functionality is available right after the client is successfully [connected](#connection).
 
-Call the publish() method to send any application-specific data to Google IoT Core.
+Call the [publish()](#publishdata-subfolder-onpublished) method to send any application-specific data to Google IoT Core.
+
+#### Example ####
+```squirrel
+// Publish a telemetry event without a callback
+client.publish("some data", null);
+
+function onPublished(data, err) {
+    if (err != 0) {
+        server.error("Publish telemetry error: code = " + err);
+        // For example simplicity trying to publish again in case of any error
+        client.publish("some data", null, onPublished);
+        return;
+    }
+    server.log("Telemetry has been published. Data = " + data);
+}
+
+// Publish a telemetry event with a callback
+client.publish("some data", null, onPublished);
+```
 
 ### State Reporting ###
 
 [State Reporting](https://cloud.google.com/iot/docs/how-tos/config/getting-state#reporting_device_state) functionality is available right after the client is successfully [connected](#connection).
 
-Call the reportState() method to send an application-specific state of the device to Google IoT Core.
+Call the [reportState()](#reportstatestate-onreported) method to send an application-specific state of the device to Google IoT Core.
 
 This functionality may work in a pair with [Configuration Receiving](#configuration-receiving) functionality or be totally independent from it.
+
+#### Example ####
+```squirrel
+client.reportState("some data", onReported);
+
+function onReported(state, err) {
+    if (err != 0) {
+        server.error("Report state error: code = " + err);
+        return;
+    }
+    server.log("State has been reported!");
+}
+```
 
 ### Configuration Receiving ###
 
 [Configuration Receiving](https://cloud.google.com/iot/docs/how-tos/config/configuring-devices) functionality is disabled by default and should be re-enabled every time after the client is successfully [connected](#connection).
 
-Call the enableCfgReceiving() method to enable/re-enable/disable it.
+Call the [enableCfgReceiving()](#enablecfgreceivingonreceive-ondone) method to enable/re-enable/disable it.
 
 Configuration Receiving functionality may be used to pass an application-specific data from Google IoT Core to a device, eg.:
 - new configuration (eg. settings, firmware, etc.);
@@ -151,6 +241,23 @@ Configuration Receiving functionality may be used to pass an application-specifi
 - any other data (eg. messages, etc.).
 
 If a request (eg. configuration or command) from Google IoT Core assumes an answer from a device, then, usually, [State Reporting](#state-reporting) functionality is used to provide an answer. But this is fully application-specific.
+
+#### Example ####
+```squirrel
+function onConfigReceived(config) {
+    server.log("Configuration received: " + config.tostring());
+}
+
+function onDone(err) {
+    if (err != 0) {
+        server.error("Enabling configuration receiving failed: " + err);
+    } else {
+        server.log("Configuration receiving enabled successfully");
+    }
+}
+
+client.enableCfgReceiving(onConfigReceived, onDone);
+```
 
 ### Pending Requests ###
 
@@ -218,7 +325,7 @@ This callback is called every time the client is disconnected.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
-| *error* | Integer | `0` if the disconnection was caused by the disconnect() method, an [error code](#error-codes) which explains a reason of the disconnection otherwise. |
+| *error* | Integer | `0` if the disconnection was caused by the [disconnect()](#disconnect) method, an [error code](#error-codes) which explains a reason of the disconnection otherwise. |
 
 ##### Options #####
 
@@ -231,45 +338,6 @@ These additional settings affect the client's behavior and the operations. Every
 | "tokenTTL" | Integer | 3600 | [JWT token's time to live](https://cloud.google.com/iot/docs/how-tos/credentials/jwts#required_claims), in seconds. |
 | "tokenAutoRefresh" | Boolean | True | Enable [Automatic JWT Token Refreshing](#automatic-jwt-token-refreshing). |
 
-```squirrel
-#require "GoogleIoTCore.agent.lib.nut:1.0.0"
-
-const GOOGLE_IOT_CORE_PROJECT_ID    = "example-project-256256";
-const GOOGLE_IOT_CORE_CLOUD_REGION  = "us-central1";
-const GOOGLE_IOT_CORE_REGISTRY_ID   = "example-registry";
-const GOOGLE_IOT_CORE_DEVICE_ID     = "example-device_2";
-const GOOGLE_IOT_CORE_PRIVATE_KEY   = "-----BEGIN PRIVATE KEY-----\nMIIEvAIBAG9w...rxmClmOG==\n-----END PRIVATE KEY-----";
-
-function onConnected(err) {
-    if (err != 0) {
-        server.error("Connect failed: " + err);
-        return;
-    }
-    server.log("Connected");
-    // Here is a good place to enable configuration receiving
-}
-
-function onDisconnected(err) {
-    if (err != 0) {
-        server.error("Disconnected unexpectedly with code: " + err);
-        // Reconnect if disconnection is not initiated by application
-        client.connect();
-    } else {
-        server.log("Disconnected by application");
-    }
-}
-
-// Instantiate and connect a client
-client <- GoogleIoTCore.Client(GOOGLE_IOT_CORE_PROJECT_ID,
-                               GOOGLE_IOT_CORE_CLOUD_REGION,
-                               GOOGLE_IOT_CORE_REGISTRY_ID,
-                               GOOGLE_IOT_CORE_DEVICE_ID,
-                               GOOGLE_IOT_CORE_PRIVATE_KEY,
-                               onConnected,
-                               onDisconnected);
-client.connect();
-```
-
 #### setOnConnected(*callback*) ####
 
 This method sets [*onConnected*](#callback-onconnectederror) callback. The method returns nothing.
@@ -278,7 +346,7 @@ This method sets [*onConnected*](#callback-onconnectederror) callback. The metho
 
 This method sets [*onDisconnected*](#callback-ondisconnectederror) callback. The method returns nothing.
 
-#### setPrivateKey(privateKey) ####
+#### setPrivateKey(*privateKey*) ####
 
 This method sets [Private key](https://cloud.google.com/iot/docs/how-tos/credentials/keys). The method returns nothing.
 
@@ -313,23 +381,6 @@ This callback is called when the device is registered.
 | Parameter | Data Type | Description |
 | --- | --- | --- |
 | *[error](#error-codes)* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
-
-```squirrel
-const GOOGLE_ISS = "test-serv-acc@studied-temple-212412.iam.gserviceaccount.com";
-const GOOGLE_SECRET_KEY = "-----BEGIN PRIVATE KEY-----\nMII ..... QbDgw==\n-----END PRIVATE KEY-----\n";
-const GOOGLE_IOT_CORE_PUBLIC_KEY = "-----BEGIN CERTIFICATE-----\nMIIC+DCCAeCg...neGy5zYVE=\n-----END CERTIFICATE-----";
-
-function onRegistered(err) {
-    if (err != 0) {
-        server.error("Registration error: code = " + err);
-        return;
-    }
-    server.log("Successfully registered!");
-    client.connect();
-}
-
-client.register(GOOGLE_ISS, GOOGLE_SECRET_KEY, GOOGLE_IOT_CORE_PUBLIC_KEY, onRegistered);
-```
 
 #### connect() ####
 
@@ -374,24 +425,6 @@ This callback is called when the data is considered as published or an error occ
 | *data* | String or Blob | The original *data* passed in to the [publish()](#publishdata-subfolder-onpublished) method. |
 | *[error](#error-codes)* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
 
-```squirrel
-// Publish a telemetry event without a callback
-client.publish("some data", null);
-
-function onPublished(data, err) {
-    if (err != 0) {
-        server.error("Publish telemetry error: code = " + err);
-        // For example simplicity trying to publish again in case of any error
-        client.publish("some data", null, onPublished);
-        return;
-    }
-    server.log("Telemetry has been published. Data = " + data);
-}
-
-// Publish a telemetry event with a callback
-client.publish("some data", null, onPublished);
-```
-
 #### enableCfgReceiving(*onReceive[, onDone]*) ####
 
 This method enables/disables [configuration receiving from Google IoT Core](https://cloud.google.com/iot/docs/how-tos/config/configuring-devices).
@@ -423,23 +456,6 @@ This callback is called when the method is completed.
 | --- | --- | --- |
 | *[error](#error-codes)* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
 
-
-```squirrel
-function onConfigReceived(config) {
-    server.log("Configuration received: " + config.tostring());
-}
-
-function onDone(err) {
-    if (err != 0) {
-        server.error("Enabling configuration receiving failed: " + err);
-    } else {
-        server.log("Configuration receiving enabled successfully");
-    }
-}
-
-client.enableCfgReceiving(onConfigReceived, onDone);
-```
-
 #### reportState(*state[, onReported]*) ####
 
 This method [reports a device state to Google IoT Core](https://cloud.google.com/iot/docs/how-tos/config/getting-state#reporting_device_state).
@@ -459,18 +475,6 @@ This callback is called when the state is considered as reported or an error occ
 | --- | --- | --- |
 | *state* | String or Blob | The original *state* passed in to the [reportState()](#reportstatestate-onreported) method. |
 | *[error](#error-codes)* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
-
-```squirrel
-client.reportState("some data", onReported);
-
-function onReported(state, err) {
-    if (err != 0) {
-        server.error("Report state error: code = " + err);
-        return;
-    }
-    server.log("State has been reported!");
-}
-```
 
 #### setDebug(*value*) ####
 
