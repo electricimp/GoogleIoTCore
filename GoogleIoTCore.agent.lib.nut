@@ -25,12 +25,12 @@
 
 // GoogleIoTCore is an Electric Imp agent-side library which allows your agent code to work with Google IoT Core.
 
-const GOOGLE_IOT_CORE_ERROR_NOT_CONNECTED           = 1000;
-const GOOGLE_IOT_CORE_ERROR_ALREADY_CONNECTED       = 1001;
-const GOOGLE_IOT_CORE_ERROR_OP_NOT_ALLOWED_NOW      = 1002;
-const GOOGLE_IOT_CORE_ERROR_TOKEN_REFRESHING        = 1003;
-const GOOGLE_IOT_CORE_ERROR_ALREADY_REGISTERED      = 1004;
-const GOOGLE_IOT_CORE_ERROR_GENERAL                 = 1010;
+const GOOGLE_IOT_CORE_ERROR_NOT_CONNECTED       = 1000;
+const GOOGLE_IOT_CORE_ERROR_ALREADY_CONNECTED   = 1001;
+const GOOGLE_IOT_CORE_ERROR_OP_NOT_ALLOWED_NOW  = 1002;
+const GOOGLE_IOT_CORE_ERROR_TOKEN_REFRESHING    = 1003;
+const GOOGLE_IOT_CORE_ERROR_ALREADY_REGISTERED  = 1004;
+const GOOGLE_IOT_CORE_ERROR_GENERAL             = 1010;
 
 class GoogleIoTCore {
     static VERSION = "1.0.0";
@@ -53,7 +53,6 @@ class GoogleIoTCore.Client {
     _topics             = null;
 
     _transport          = null;
-    _defaultTransport   = null;
 
     // GoogleIoTCore Client class constructor.
     //
@@ -72,6 +71,9 @@ class GoogleIoTCore.Client {
     //                                  onDisconnected(error), where
     //                                      error : Integer     0 if the disconnection was caused by the disconnect() method,
     //                                                          an error code which explains a reason of the disconnection otherwise.
+    //     transport :                  Instance of GoogleIoTCore.*Transport class.
+    //              GoogleIoTCore.*Transport
+    //          (optional)
     //     options : Table              Key-value table with optional settings.
     //          (optional)
     //
@@ -83,6 +85,7 @@ class GoogleIoTCore.Client {
                 privateKey,
                 onConnected = null,
                 onDisconnected = null,
+                transport = null,
                 options = null) {
         const DEFAULT_SET_STATE_PARAL_REQS      = 3;
         const DEFAULT_PUB_TELEMETRY_PARAL_REQS  = 3;
@@ -95,6 +98,14 @@ class GoogleIoTCore.Client {
         _privateKey         = privateKey;
         _onConnectedCb      = onConnected;
         _onDisconnectedCb   = onDisconnected;
+
+        if (transport == null) {
+            _transport = GoogleIoTCore.MqttTransport();
+        } else {
+            _transport = transport;
+        }
+
+        _initTransport();
 
         _options = {
             "maxPendingSetStateRequests" : DEFAULT_SET_STATE_PARAL_REQS,
@@ -179,30 +190,13 @@ class GoogleIoTCore.Client {
 
     // Opens a connection to Google IoT Core.
     //
-    // Parameters:
-    //     transport :                  Instance of GoogleIoTCore.*Transport class.
-    //              GoogleIoTCore.*Transport
-    //          (optional)
-    //
     // Returns:                         Nothing.
-    function connect(transport = null) {
+    function connect() {
         if (isConnected()) {
             _onConnectedCb && _onConnectedCb(GOOGLE_IOT_CORE_ERROR_ALREADY_CONNECTED);
             return;
         }
 
-        if (transport == null) {
-            _defaultTransport = _defaultTransport != null ? _defaultTransport : GoogleIoTCore.MqttTransport();
-            _transport = _defaultTransport;
-        } else {
-            _transport = transport;
-        }
-
-        _transport._setClient(this);
-        _transport._setTokenMaker(_makeJwtToken.bindenv(this));
-        _transport._setOnConnected(_onConnected.bindenv(this));
-        _transport._setOnDisconnected(_onDisconnected.bindenv(this));
-        _transport._setDebug(_debug);
         _transport._connect();
     }
 
@@ -334,6 +328,14 @@ class GoogleIoTCore.Client {
 
     function _onDisconnected(reason) {
         _onDisconnectedCb && _onDisconnectedCb(reason);
+    }
+
+    function _initTransport() {
+        _transport._setClient(this);
+        _transport._setTokenMaker(_makeJwtToken.bindenv(this));
+        _transport._setOnConnected(_onConnected.bindenv(this));
+        _transport._setOnDisconnected(_onDisconnected.bindenv(this));
+        _transport._setDebug(_debug);
     }
 
     function _getOAuthToken(iss, secret, callback) {
