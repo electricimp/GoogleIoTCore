@@ -46,6 +46,24 @@ To start working with the library you should create an instance of the [GoogleIo
 
 It is possible to instantiate several clients but note that Google IoT Core supports only one [connection](#connection) per device.
 
+#### Example ####
+```squirrel
+#require "GoogleIoTCore.agent.lib.nut:1.0.0"
+
+const GOOGLE_IOT_CORE_PROJECT_ID    = "<YOUR_GOOGLE_IOT_CORE_PROJECT_ID>";
+const GOOGLE_IOT_CORE_CLOUD_REGION  = "<YOUR_GOOGLE_IOT_CORE_CLOUD_REGION>";
+const GOOGLE_IOT_CORE_REGISTRY_ID   = "<YOUR_GOOGLE_IOT_CORE_REGISTRY_ID>";
+const GOOGLE_IOT_CORE_DEVICE_ID     = "<YOUR_GOOGLE_IOT_CORE_DEVICE_ID>";
+const GOOGLE_IOT_CORE_PRIVATE_KEY   = "<YOUR_GOOGLE_IOT_CORE_PRIVATE_KEY>";
+
+// Instantiate a client
+client <- GoogleIoTCore.Client(GOOGLE_IOT_CORE_PROJECT_ID,
+                               GOOGLE_IOT_CORE_CLOUD_REGION,
+                               GOOGLE_IOT_CORE_REGISTRY_ID,
+                               GOOGLE_IOT_CORE_DEVICE_ID,
+                               GOOGLE_IOT_CORE_PRIVATE_KEY);
+```
+
 ### Authentication and Registration ###
 
 Google IoT Core security is described [here](https://cloud.google.com/iot/docs/concepts/device-security).
@@ -88,9 +106,9 @@ The [register()](#registeriss-secret-publickey-onregistered-name-keyformat) meth
 
 #### Example ####
 ```squirrel
-const GOOGLE_ISS = "test-serv-acc@studied-temple-212412.iam.gserviceaccount.com";
-const GOOGLE_SECRET_KEY = "-----BEGIN PRIVATE KEY-----\nMII ..... QbDgw==\n-----END PRIVATE KEY-----\n";
-const GOOGLE_IOT_CORE_PUBLIC_KEY = "-----BEGIN CERTIFICATE-----\nMIIC+DCCAeCg...neGy5zYVE=\n-----END CERTIFICATE-----";
+const GOOGLE_ISS = "<YOUR_GOOGLE_ISS>";
+const GOOGLE_SECRET_KEY = "<YOUR_GOOGLE_SECRET_KEY>";
+const GOOGLE_IOT_CORE_PUBLIC_KEY = "<YOUR_GOOGLE_IOT_CORE_PUBLIC_KEY>";
 
 function onRegistered(err) {
     if (err != 0) {
@@ -118,13 +136,11 @@ Note, Google IoT Core can disconnect your device. Eg. due to the JSON Web Token 
 
 #### Example ####
 ```squirrel
-#require "GoogleIoTCore.agent.lib.nut:1.0.0"
-
-const GOOGLE_IOT_CORE_PROJECT_ID    = "example-project-256256";
-const GOOGLE_IOT_CORE_CLOUD_REGION  = "us-central1";
-const GOOGLE_IOT_CORE_REGISTRY_ID   = "example-registry";
-const GOOGLE_IOT_CORE_DEVICE_ID     = "example-device_2";
-const GOOGLE_IOT_CORE_PRIVATE_KEY   = "-----BEGIN PRIVATE KEY-----\nMIIEvAIBAG9w...rxmClmOG==\n-----END PRIVATE KEY-----";
+const GOOGLE_IOT_CORE_PROJECT_ID    = "<YOUR_GOOGLE_IOT_CORE_PROJECT_ID>";
+const GOOGLE_IOT_CORE_CLOUD_REGION  = "<YOUR_GOOGLE_IOT_CORE_CLOUD_REGION>";
+const GOOGLE_IOT_CORE_REGISTRY_ID   = "<YOUR_GOOGLE_IOT_CORE_REGISTRY_ID>";
+const GOOGLE_IOT_CORE_DEVICE_ID     = "<YOUR_GOOGLE_IOT_CORE_DEVICE_ID>";
+const GOOGLE_IOT_CORE_PRIVATE_KEY   = "<YOUR_GOOGLE_IOT_CORE_PRIVATE_KEY>";
 
 function onConnected(err) {
     if (err != 0) {
