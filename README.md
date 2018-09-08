@@ -24,7 +24,7 @@ Below sections explain the main usage steps and recommendations.
 ### Prerequisites ###
 
 Before using the library you need to have an account in [Google IoT Core](https://cloud.google.com/iot-core/), setup it for your project and obtain the following information:
-- [Project ID](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements).
+- Project ID.
 - [Cloud region](https://cloud.google.com/iot/docs/requirements#cloud_regions).
 - [Registry ID](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements).
 
@@ -295,7 +295,7 @@ This method returns a new GoogleIoTCore.MqttTransport instance.
 
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
-| [*options*](#options) | Table | Optional | Key-value table with the transport's settings. |
+| *options* | Table | Optional | Key-value table with the [transport's settings](#options). |
 
 ##### Options #####
 
@@ -317,15 +317,15 @@ This method returns a new GoogleIoTCore.Client instance.
 
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
-| *projectId* | String | Yes | [Project ID](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements). |
+| *projectId* | String | Yes | Project ID. |
 | *cloudRegion* | String | Yes | [Cloud region](https://cloud.google.com/iot/docs/requirements#cloud_regions). |
 | *registryId* | String | Yes | [Registry ID](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements). |
 | *deviceId* | String | Yes | [Device ID](https://cloud.google.com/iot/docs/requirements#permitted_characters_and_size_requirements). |
 | *privateKey* | String | Yes | [Private key](https://cloud.google.com/iot/docs/how-tos/credentials/keys). |
-| [*onConnected*](#callback-onconnectederror) | Function | Optional | Callback called every time the client is connected. |
-| [*onDisconnected*](#callback-ondisconnectederror) | Function | Optional | Callback called every time the client is disconnected. |
+| *onConnected* | Function | Optional | [Callback](#callback-onconnectederror) called every time the client is connected. |
+| *onDisconnected* | Function | Optional | [Callback](#callback-ondisconnectederror) called every time the client is disconnected. |
 | *transport* | GoogleIoTCore.\*Transport  | Optional | Instance of GoogleIoTCore.\*Transport class. Default transport is [GoogleIoTCore.MqttTransport](#googleiotcoremqtttransport-class) with default [MQTT options](#options). |
-| [*options*](#options-1) | Table | Optional | Key-value table with additional settings. |
+| *options* | Table | Optional | Key-value table with additional [settings](#options-1). |
 
 ##### Callback: onConnected(*error*) #####
 
@@ -352,9 +352,9 @@ These additional settings affect the client's behavior and the operations. Every
 | Key (String) | Value Type | Default | Description |
 | --- | --- | --- | --- |
 | "maxPendingSetStateRequests" | Integer | 3 | Maximum amount of pending [State Reporting operations](#reportstatestate-onreported). |
-| "maxPendingPublishTelemetryRequests" | Integer | 3 | Maximum amount of pending [Telemetry Publishing operations](#publishdata-subfolder-onPublished). |
+| "maxPendingPublishTelemetryRequests" | Integer | 3 | Maximum amount of pending [Telemetry Publishing operations](#publishdata-subfolder-onpublished). |
 | "tokenTTL" | Integer | 3600 | [JWT token's time to live](https://cloud.google.com/iot/docs/how-tos/credentials/jwts#required_claims), in seconds. |
-| "tokenAutoRefresh" | Boolean | True | Enable [Automatic JWT Token Refreshing](#automatic-jwt-token-refreshing). |
+| "tokenAutoRefresh" | Boolean | True | Enable [Automatic JWT Refreshing](#automatic-jwt-refreshing). |
 
 #### setOnConnected(*callback*) ####
 
@@ -388,7 +388,7 @@ The method returns nothing. A result of the operation may be obtained via the [*
 | *iss* | String  | Yes | [JWT issuer](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#jwt-auth). |
 | *secret* | String  | Yes | [JWT sign secret key](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#jwt-auth). |
 | *publicKey* | String  | Yes | [Public key](https://cloud.google.com/iot/docs/how-tos/credentials/keys) for the device. It must correspond to the private key set for the client. |
-| *[onRegistered](#callback-onregisterederror)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
+| *onRegistered* | Function  | Optional | [Callback](#callback-onregisterederror) called when the operation is completed or an error occurs. |
 | *name* | String | Optional | [Device name](https://cloud.google.com/iot/docs/reference/cloudiot/rest/v1/projects.locations.registries.devices#resource-device). |
 | *keyFormat* | String | Optional | [Public key format](https://cloud.google.com/iot/docs/reference/cloudiot/rest/v1/projects.locations.registries.devices#publickeyformat). If not specified or `null`, `RSA_X509_PEM` is applied. |
 
@@ -398,7 +398,7 @@ This callback is called when the device is registered.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
-| *[error](#error-codes)* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
+| *error* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
 
 #### connect() ####
 
@@ -432,7 +432,7 @@ The method returns nothing. A result of the operation may be obtained via the [*
 | --- | --- | --- | --- |
 | *data* | String or Blob  | Yes | Application specific data. Application can use the [Serializer](https://developer.electricimp.com/libraries/utilities/serializer) library to convert Squirrel objects to Blobs. |
 | *subfolder* | String  | Optional | The subfolder can be used as an event category or classification. For more information, see [here](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge#publishing_telemetry_events_to_separate_pubsub_topics). |
-| *[onPublished](#callback-onpublisheddata-error)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
+| *onPublished* | Function  | Optional | [Callback](#callback-onpublisheddata-error) called when the operation is completed or an error occurs. |
 
 ##### Callback: onPublished(*data, error*) ######
 
@@ -441,7 +441,7 @@ This callback is called when the data is considered as published or an error occ
 | Parameter | Data Type | Description |
 | --- | --- | --- |
 | *data* | String or Blob | The original *data* passed in to the [publish()](#publishdata-subfolder-onpublished) method. |
-| *[error](#error-codes)* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
+| *error* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
 
 #### enableCfgReceiving(*onReceive[, onDone]*) ####
 
@@ -456,7 +456,7 @@ The method returns nothing. A result of the operation may be obtained via the [*
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
 | *onReceive* | Function  | Yes | [Callback](#callback-onreceiveconfiguration) called every time a configuration is received from Google IoT Core. `null` disables the feature. |
-| *[onDone](#callback-ondoneerror)* | Function  | Optional | [Callback](#callback-ondoneerror) called when the operation is completed or an error occurs. |
+| *onDone* | Function  | Optional | [Callback](#callback-ondoneerror) called when the operation is completed or an error occurs. |
 
 ##### Callback: onReceive(*configuration*) #####
 
@@ -472,7 +472,7 @@ This callback is called when the method is completed.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
-| *[error](#error-codes)* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
+| *error* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
 
 #### reportState(*state[, onReported]*) ####
 
@@ -483,7 +483,7 @@ The method returns nothing. A result of the operation may be obtained via the [*
 | Parameter | Data Type | Required? | Description |
 | --- | --- | --- | --- |
 | *state* | String or Blob  | Yes | [Device state](https://cloud.google.com/iot/docs/concepts/devices#device_state). Application specific data. Application can use the [Serializer](https://developer.electricimp.com/libraries/utilities/serializer) library to convert Squirrel objects to Blobs. |
-| *[onReported](#callback-onreportedstate-error)* | Function  | Optional | Callback called when the operation is completed or an error occurs. |
+| *onReported* | Function  | Optional | [Callback](#callback-onreportedstate-error) called when the operation is completed or an error occurs. |
 
 ##### Callback: onReported(*state, error*) #####
 
@@ -492,7 +492,7 @@ This callback is called when the state is considered as reported or an error occ
 | Parameter | Data Type | Description |
 | --- | --- | --- |
 | *state* | String or Blob | The original *state* passed in to the [reportState()](#reportstatestate-onreported) method. |
-| *[error](#error-codes)* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
+| *error* | Integer | `0` if the operation is completed successfully, an [error code](#error-codes) otherwise. |
 
 #### setDebug(*value*) ####
 
@@ -508,7 +508,7 @@ An *Integer* error code which specifies a concrete error (if any) happened durin
 | 1000 | GOOGLE_IOT_CORE_ERROR_NOT_CONNECTED | The client is not connected. |
 | 1001 | GOOGLE_IOT_CORE_ERROR_ALREADY_CONNECTED | The client is already connected. |
 | 1002 | GOOGLE_IOT_CORE_ERROR_OP_NOT_ALLOWED_NOW | The operation is not allowed now. E.g. the same operation is already in process. |
-| 1003 | GOOGLE_IOT_CORE_ERROR_TOKEN_REFRESHING | An error occured while [refreshing the token](#automatic-jwt-token-refreshing). This error code can only be passed in to the [*onDisconnected*](#callback-ondisconnectederror) callback. |
+| 1003 | GOOGLE_IOT_CORE_ERROR_TOKEN_REFRESHING | An error occured while [refreshing the token](#automatic-jwt-refreshing). This error code can only be passed in to the [*onDisconnected*](#callback-ondisconnectederror) callback. |
 | 1004 | GOOGLE_IOT_CORE_ERROR_ALREADY_REGISTERED | Another device is already registered with the same Device ID. |
 | 1010 | GOOGLE_IOT_CORE_ERROR_GENERAL | General error. |
 
