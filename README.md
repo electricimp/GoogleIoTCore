@@ -85,7 +85,7 @@ Assuming your project has a server/cloud, a device initialization process may lo
 1. The server passes the private key(s), the Device ID (if it was not received from the device), as well as other settings mentioned in the [Prerequisites](#prerequisites) section and which are not pre-hardcoded, to your application.
 1. The application initializes the library by passing the settings to the [GoogleIoTCore.Client constructor](#constructor-googleiotcoreclientprojectid-cloudregion-registryid-deviceid-privatekey-onconnected-ondisconnected-transport-options).
 1. The settings must be passed to the library after every restart of the application. For all non-hardcoded settings you may decide either to obtain them from the server after every restart, or save them locally in a non-volatile memory.
-1. New private key should be obtained from the server, if the existing key has an expiration time and is about to expire.
+1. New private key should be obtained from the server if the existing key has an expiration time and is about to expire.
 
 The GoogleIoTCore.Client constructor accepts only one private key. At any time your application can call [setPrivateKey()](#setprivatekeyprivatekey) method to change the current private key, eg. for a rotation purpose or when the key is expired.
 
@@ -93,7 +93,7 @@ See also [Automatic JWT Refreshing](#automatic-jwt-refreshing) section.
 
 #### Device Self-Registration ####
 
-The library includes a complementary [register()](#registeriss-secret-publickey-onregistered-name-keyformat) method to self-register a device in Google IoT Core. It may be used for quick prorotypes, Proof of Concepts and demos. It is not recommended for production-oriented applications.
+The library includes a complementary [register()](#registeriss-secret-publickey-onregistered-name-keyformat) method to self-register a device in Google IoT Core. It may be used for quick prototypes, Proof of Concepts and demos. It is not recommended for production-oriented applications.
 
 The [register()](#registeriss-secret-publickey-onregistered-name-keyformat) method requires additional settings to be pre-hardcoded or obtained by an application, eg. from your server/cloud:
 - [JWT issuer](https://developers.google.com/identity/protocols/OAuth2ServiceAccount#jwt-auth).
@@ -187,7 +187,7 @@ For MQTT Transport the token updating algorithm is the following:
 1. Subscribes to the topics which were subscribed to before the reconnection.
 1. Sets the timer for the new token expiration.
 
-The library does all these operations automatically and invisibly to an application. The [onDisconnected()](#callback-ondisconnectederror) and [onConnected()](#callback-onconnectederror) callbacks are not called. All the API calls, made by the application at the time of updating, are scheduled in a queue and processed right after the token updating algorithm is successfuly finished. If the token update fails, the [onDisconnected()](#callback-ondisconnectederror) callback is called (if the callback has been set).
+The library does all these operations automatically and invisibly to an application. The [onDisconnected()](#callback-ondisconnectederror) and [onConnected()](#callback-onconnectederror) callbacks are not called. All the API calls, made by the application at the time of updating, are scheduled in a queue and processed right after the token updating algorithm is successfully finished. If the token update fails, the [onDisconnected()](#callback-ondisconnectederror) callback is called (if the callback has been set).
 
 To calculate a new token the library uses the current private key provided to the client. At any time the key can be updated by an application by calling the [setPrivateKey()](#setprivatekeyprivatekey) method. The new key will be used during the next updating of the token.
 
@@ -232,7 +232,7 @@ client.publish("some data", null, onPublished);
 
 Call the [reportState()](#reportstatestate-onreported) method to send an application-specific state of the device to Google IoT Core.
 
-This functionality may work in a pair with [Configuration Receiving](#configuration-receiving) functionality or be totally independent from it.
+This functionality may work in a pair with [Configuration Receiving](#configuration-receiving) functionality or be totally independent of it.
 
 #### Example ####
 ```squirrel
@@ -283,7 +283,7 @@ client.enableCfgReceiving(onConfigReceived, onDone);
 
 ### Errors Processing ###
 
-The most of methods of the library return results via callbacks. And every callback include the `error` parameter which indicates if the operation has been executed successfully (`error` is `0`) or has been failed. Different [error codes](#error-codes) include errors returned by the transports and the errors from the library.
+The most of methods of the library return results via callbacks. And every callback includes the `error` parameter which indicates if the operation has been executed successfully (`error` is `0`) or has been failed. Different [error codes](#error-codes) include errors returned by the transports and the errors from the library.
 
 ## API Specification ##
 
@@ -331,7 +331,7 @@ This method returns a new GoogleIoTCore.Client instance.
 
 This callback is called every time the client is connected.
 
-This is a good place to call the [enableCfgReceiving()](#enablecfgreceivingonreceive-ondone) method, if this functionality is needed.
+This is a good place to call the [enableCfgReceiving()](#enablecfgreceivingonreceive-ondone) method if this functionality is needed.
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
@@ -377,7 +377,7 @@ It makes the minimal required registration - only one private-public key pair, w
 First, the method attempts to find already existing device with the device ID specified in the client’s constructor and compare that device's public key with the key passed in. And then:
 - If no device found, the method tries to register the new one.
 - Else if a device is found and the keys are identical, the method succeeds, assuming the device is already registered.
-- Otherwise it is assumed that **another** device is registered with the same ID and the method returns the `GOOGLE_IOT_CORE_ERROR_ALREADY_REGISTERED` error.
+- Otherwise, it is assumed that **another** device is registered with the same ID and the method returns the `GOOGLE_IOT_CORE_ERROR_ALREADY_REGISTERED` error.
 
 **If you are going to use this method, add** `#require "OAuth2.agent.lib.nut:2.0.0"` **to the top of your agent code**.
 
@@ -508,7 +508,7 @@ An *Integer* error code which specifies a concrete error (if any) happened durin
 | 1000 | GOOGLE_IOT_CORE_ERROR_NOT_CONNECTED | The client is not connected. |
 | 1001 | GOOGLE_IOT_CORE_ERROR_ALREADY_CONNECTED | The client is already connected. |
 | 1002 | GOOGLE_IOT_CORE_ERROR_OP_NOT_ALLOWED_NOW | The operation is not allowed now. E.g. the same operation is already in process. |
-| 1003 | GOOGLE_IOT_CORE_ERROR_TOKEN_REFRESHING | An error occured while [refreshing the token](#automatic-jwt-refreshing). This error code can only be passed in to the [*onDisconnected*](#callback-ondisconnectederror) callback. |
+| 1003 | GOOGLE_IOT_CORE_ERROR_TOKEN_REFRESHING | An error occurred while [refreshing the token](#automatic-jwt-refreshing). This error code can only be passed in to the [*onDisconnected*](#callback-ondisconnectederror) callback. |
 | 1004 | GOOGLE_IOT_CORE_ERROR_ALREADY_REGISTERED | Another device is already registered with the same Device ID. |
 | 1010 | GOOGLE_IOT_CORE_ERROR_GENERAL | General error. |
 
