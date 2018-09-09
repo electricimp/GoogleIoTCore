@@ -347,10 +347,6 @@ class GoogleIoTCore.Client {
         // Initializing client with provided Google Firebase config
         local client = OAuth2.JWTProfile.Client(OAuth2.DeviceFlow.GOOGLE, config);
 
-        // TODO: Fix it in the OAuth lib and remove this line
-        // TODO: Also remove direct "server.log" calls in that lib
-        client._debug = false;
-
         // Starting procedure of access token acquisition
         client.acquireAccessToken(
             function(resp, err) {
