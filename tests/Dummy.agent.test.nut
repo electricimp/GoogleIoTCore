@@ -32,7 +32,9 @@ class DummyTestCase extends ImpTestCase {
     _googleIoTCoreClient = null;
 
     function setUp() {
-        _googleIoTCoreClient = GoogleIoTCore.Client("projId", "cloudReg", "regId", "devId", GOOGLE_IOT_CORE_PRIVATE_KEY);
+        _googleIoTCoreClient = GoogleIoTCore.Client("projId", "cloudReg", "regId", "devId", "privKey");
+        // If the setPrivateKey() method works incorrectly, we will get an error in the testConnect test
+        _googleIoTCoreClient.setPrivateKey(GOOGLE_IOT_CORE_PRIVATE_KEY);
     }
 
     function tearDown() {
@@ -52,7 +54,7 @@ class DummyTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    function testConnect1() {
+    function testConnect() {
         return Promise(function (resolve, reject) {
             local callback = function (err) {
                 if (err != 0) {
