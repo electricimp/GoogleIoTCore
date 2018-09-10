@@ -174,7 +174,7 @@ client.connect();
 
 ### Automatic JWT Refreshing ###
 
-[JSON Web Token](https://cloud.google.com/iot/docs/how-tos/credentials/jwts) always has an expiration time (do not mess it with a private/public key expiration time). If the token is expired, Google IoT Core disconnects the device. To prevent the disconnection the token must be updated before its expiration.
+[JSON Web Token](https://cloud.google.com/iot/docs/how-tos/credentials/jwts) always has an expiration time (do not confuse it with a private/public key expiration time). If the token is expired, Google IoT Core disconnects the device. To prevent the disconnection the token must be updated before its expiration.
 
 The library implements the token updating algorithm. It is enabled by default.
 
