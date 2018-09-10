@@ -32,7 +32,13 @@ class DummyTestCase extends ImpTestCase {
     _googleIoTCoreClient = null;
 
     function setUp() {
-        _googleIoTCoreClient = GoogleIoTCore.Client("projId", "cloudReg", "regId", "devId", GOOGLE_IOT_CORE_PRIVATE_KEY);
+        _googleIoTCoreClient = GoogleIoTCore.Client("projId", "cloudReg", "regId", "devId", "privKey");
+        // If the setPrivateKey() method works incorrectly, we will get an error in the testConnect test
+        _googleIoTCoreClient.setPrivateKey(GOOGLE_IOT_CORE_PRIVATE_KEY);
+    }
+
+    function tearDown() {
+        _googleIoTCoreClient.disconnect();
     }
 
     function testRegister() {
@@ -48,9 +54,8 @@ class DummyTestCase extends ImpTestCase {
         }.bindenv(this));
     }
 
-    function testConnect1() {
+    function testConnect() {
         return Promise(function (resolve, reject) {
-            _googleIoTCoreClient.connect();
             local callback = function (err) {
                 if (err != 0) {
                     return resolve();
@@ -60,24 +65,6 @@ class DummyTestCase extends ImpTestCase {
             _googleIoTCoreClient.setOnConnected(callback);
             _googleIoTCoreClient.connect();
         }.bindenv(this));
-    }
-
-    function testConnect2() {
-        return Promise(function (resolve, reject) {
-            _googleIoTCoreClient.connect(GoogleIoTCore.MqttTransport());
-            local callback = function (err) {
-                if (err != 0) {
-                    return resolve();
-                }
-                return reject("An error was expected!");
-            }.bindenv(this);
-            _googleIoTCoreClient.setOnConnected(callback);
-            _googleIoTCoreClient.connect(GoogleIoTCore.MqttTransport());
-        }.bindenv(this));
-    }
-
-    function testDisconnect() {
-        _googleIoTCoreClient.disconnect();
     }
 
     function testIsConnected() {
@@ -104,6 +91,7 @@ class DummyTestCase extends ImpTestCase {
                 if (err == GOOGLE_IOT_CORE_ERROR_NOT_CONNECTED) {
                     return resolve();
                 }
+                server.error(err);
                 return reject("GOOGLE_IOT_CORE_ERROR_NOT_CONNECTED error was expected!");
             }.bindenv(this);
             _googleIoTCoreClient.enableCfgReceiving(function (cfg) {}, callback);
