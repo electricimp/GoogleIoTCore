@@ -6,7 +6,7 @@ They are written for and should be used with [impt](https://github.com/electrici
 
 ## Configure Google IoT Core ##
 
-1. [Login to Google IoT Core](./examples/README.md#login-to-google-iot-core)
+1. [Login to Google IoT Core](../examples/README.md#login-to-google-iot-core)
 1. [Create an IoT Core Project](../examples/README.md#create-an-iot-core-project)
 1. [Create a Device Registry](../examples/README.md#create-a-device-registry)
 1. [Create a Device](../examples/README.md#create-a-device)
