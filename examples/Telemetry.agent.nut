@@ -170,7 +170,7 @@ class TelemetryExample {
 const GOOGLE_IOT_CORE_PROJECT_ID    = "<YOUR_PROJECT_ID>";
 const GOOGLE_IOT_CORE_CLOUD_REGION  = "us-central1";
 const GOOGLE_IOT_CORE_REGISTRY_ID   = "example-registry";
-const GOOGLE_IOT_CORE_DEVICE_ID     = "example-device_1";
+const GOOGLE_IOT_CORE_DEVICE_ID     = "example-device";
 
 const GOOGLE_ISS = "<YOUR_GOOGLE_ISS>";
 const GOOGLE_SECRET_KEY = "<YOUR_GOOGLE_SECRET_KEY>";
