@@ -3,6 +3,7 @@
 This library allows your agent code to work with [Google IoT Core](https://cloud.google.com/iot-core/).
 
 This version of the library supports the following functionality:
+
 - [Registering a device](https://cloud.google.com/iot/docs/how-tos/getting-started#device_registration) in Google IoT Core (optional feature).
 - [Connecting and disconnecting](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge) to/from Google IoT Core.
 - [Publishing telemetry events](https://cloud.google.com/iot/docs/how-tos/mqtt-bridge#publishing_telemetry_events) to Google IoT Core.
@@ -88,7 +89,7 @@ Assuming your project has a server, a device initialization process may look lik
 
 The GoogleIoTCore.Client constructor accepts only one private key. At any time your application can call [*setPrivateKey()*](#setprivatekeyprivatekey) to change the current private key, eg. for rotation, or when the key has expired.
 
-See also the [Automatic JWT Refreshing](#automatic-jwt-refreshing) section.
+See also the [Refreshing JSON Web Tokens Automatically](#refreshing-json-web-tokens-automatically) section.
 
 #### Device Self-Registration ####
 
