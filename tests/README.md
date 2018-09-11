@@ -7,29 +7,29 @@ They are written for and should be used with [impt](https://github.com/electrici
 ## Configure Google IoT Core ##
 
 1. [Login to Google IoT Core](../examples/README.md#login-to-google-iot-core)
-1. [Create an IoT Core Project](../examples/README.md#create-iot-core-project)
-1. [Create a Device Registry](../examples/README.md#create-device-registry)
-1. [Create a Device](../examples/README.md#create-device)
-1. [Setup Google Service Accounts](../examples/README.md#setup-google-service-accounts)
+1. [Create an IoT Core Project](../examples/README.md#create-an-iot-core-project)
+1. [Create a Device Registry](../examples/README.md#create-a-device-registry)
+1. [Create a Device](../examples/README.md#create-a-device)
+1. [Set up Google Service Accounts](../examples/README.md#set-up-google-service-accounts)
 
 ## Set Environment Variables ##
 
 - Set the *GOOGLE_IOT_CORE_PROJECT_ID* environment variable to the value of **your **Project ID** obtained in the [step 2](../examples/README.md#create-iot-core-project).\The value should look like `example-project-256256`.
-- Set the *GOOGLE_IOT_CORE_CLOUD_REGION* environment variable to the value of your **Cloud Region** set in [step 3](../examples/README.md#create-device-registry).\The value should look like `us-central1`.
-- Set the *GOOGLE_IOT_CORE_REGISTRY_ID* environment variable to the value of your **Registry ID** set in [step 3](../examples/README.md#create-device-registry).\The value should look like `example-registry`.
-- Set the *GOOGLE_IOT_CORE_DEVICE_ID* environment variable to the value of your **Device ID** set in [step 4](../examples/README.md#create-device).\The value should look like `example-device_2`.
-- Set the *GOOGLE_IOT_CORE_PUBLIC_KEY* environment variable to the value of your **Public Key** set in [step 4](../examples/README.md#create-device).\
+- Set the *GOOGLE_IOT_CORE_CLOUD_REGION* environment variable to the value of your **Cloud Region** set in [step 3](../examples/README.md#create-a-device-registry).\The value should look like `us-central1`.
+- Set the *GOOGLE_IOT_CORE_REGISTRY_ID* environment variable to the value of your **Registry ID** set in [step 3](../examples/README.md#create-a-device-registry).\The value should look like `example-registry`.
+- Set the *GOOGLE_IOT_CORE_DEVICE_ID* environment variable to the value of your **Device ID** set in [step 4](../examples/README.md#create-a-device).\The value should look like `example-device_2`.
+- Set the *GOOGLE_IOT_CORE_PUBLIC_KEY* environment variable to the value of your **Public Key** set in [step 4](../examples/README.md#create-a-device).\
 The value should look like\
 `-----BEGIN CERTIFICATE-----\nMIIC+DCCAeCg...neGy5zYVE=\n-----END CERTIFICATE-----` or\
 `-----BEGIN PUBLIC KEY-----MIIBIjANBgk...vWZTtQIDAQAB-----END PUBLIC KEY-----`.\
 **Note** All line breaks in the **Public Key** should be replaced with the `\n` symbol. If you use the key pair provided with the [library examples](../examples), you can just copy the **Public Key** from the [Keys section](#keys) below.
-- Set the *GOOGLE_IOT_CORE_PRIVATE_KEY* environment variable to the value of the **Private Key** which is paired with your **Public Key** set in [step 4](../examples/README.md#create-device).\
+- Set the *GOOGLE_IOT_CORE_PRIVATE_KEY* environment variable to the value of the **Private Key** which is paired with your **Public Key** set in [step 4](../examples/README.md#create-a-device).\
 The value should look like\
 `-----BEGIN PRIVATE KEY-----\nMIIEvAIBAG9w...rxmClmOG==\n-----END PRIVATE KEY-----`.\
 **Note** that all line breaks in the **Private Key** should be replaced with the `\n` symbol. If you use the key pair provided with [examples](../examples), you can just copy the **Private Key** from the [Keys section](#keys) below.
-- Set the *GOOGLE_ISS* environment variable to the value of your **client_email** from [step 5](../examples/README.md#setup-google-service-accounts).\
+- Set the *GOOGLE_ISS* environment variable to the value of your **client_email** from [step 5](../examples/README.md#set-up-google-service-accounts).\
 The value should look like `example-serv-acc@example-project-256256.iam.gserviceaccount.com`.
-- Set the *GOOGLE_SECRET_KEY* environment variable to the value of your **private_key** from [step 5](../examples/README.md#setup-google-service-accounts).\
+- Set the *GOOGLE_SECRET_KEY* environment variable to the value of your **private_key** from [step 5](../examples/README.md#set-up-google-service-accounts).\
 The value should look like\
 `-----BEGIN PRIVATE KEY-----\nMII ..... QbDgw==\n-----END PRIVATE KEY-----\n`.
 - For integration with [Travis](https://travis-ci.org), set the *EI_LOGIN_KEY* environment variable to a valid impCentral login key.
