@@ -1,58 +1,251 @@
-# Test Instructions #
+# Google IoT Core Examples #
 
-The tests in the current directory are intended to check the behavior of the GoogleIoTCore library.
+This document describes the example applications provided with the [GoogleIoTCore library](../README.md).
 
-They are written for and should be used with [impt](https://github.com/electricimp/imp-central-impt). Please see the [impt Testing Guide](https://github.com/electricimp/imp-central-impt/blob/master/TestingGuide.md) to learn how to configure and run these tests, which require the setup described below.
+## Telemetry Example ##
 
-## Configure Google IoT Core ##
+This is a basic example of a quick prototype, proof-of-concept or demo application. For an example of a more production-oriented application, please see the [Configuration And State Example](#configuration-and-state-example), below.
 
-1. [Login to Google IoT Core](../examples/README.md#login-to-google-iot-core)
-1. [Create an IoT Core Project](../examples/README.md#create-an-iot-core-project)
-1. [Create a Device Registry](../examples/README.md#create-a-device-registry)
-1. [Create a Device](../examples/README.md#create-a-device)
-1. [Set up Google Service Accounts](../examples/README.md#set-up-google-service-accounts)
+This example:
 
-## Set Environment Variables ##
+- Downloads public and private keys using provided URLs. All other configuration settings are hardcoded into the example's code. 
+- Registers a device (if not registered already) withe Google IoT Core using the library's optional *register()* method.
+- Connects to Google IoT Core.
+- Sends telemetry events to Google IoT Core every eight seconds. Each event contains the current timestamp.
 
-- Set the *GOOGLE_IOT_CORE_PROJECT_ID* environment variable to the value of **your **Project ID** obtained in the [step 2](../examples/README.md#create-iot-core-project).\The value should look like `example-project-256256`.
-- Set the *GOOGLE_IOT_CORE_CLOUD_REGION* environment variable to the value of your **Cloud Region** set in [step 3](../examples/README.md#create-a-device-registry).\The value should look like `us-central1`.
-- Set the *GOOGLE_IOT_CORE_REGISTRY_ID* environment variable to the value of your **Registry ID** set in [step 3](../examples/README.md#create-a-device-registry).\The value should look like `example-registry`.
-- Set the *GOOGLE_IOT_CORE_DEVICE_ID* environment variable to the value of your **Device ID** set in [step 4](../examples/README.md#create-a-device).\The value should look like `example-device_2`.
-- Set the *GOOGLE_IOT_CORE_PUBLIC_KEY* environment variable to the value of your **Public Key** set in [step 4](../examples/README.md#create-a-device).\
-The value should look like\
-`-----BEGIN CERTIFICATE-----\nMIIC+DCCAeCg...neGy5zYVE=\n-----END CERTIFICATE-----` or\
-`-----BEGIN PUBLIC KEY-----MIIBIjANBgk...vWZTtQIDAQAB-----END PUBLIC KEY-----`.\
-**Note** All line breaks in the **Public Key** should be replaced with the `\n` symbol. If you use the key pair provided with the [library examples](../examples), you can just copy the **Public Key** from the [Keys section](#keys) below.
-- Set the *GOOGLE_IOT_CORE_PRIVATE_KEY* environment variable to the value of the **Private Key** which is paired with your **Public Key** set in [step 4](../examples/README.md#create-a-device).\
-The value should look like\
-`-----BEGIN PRIVATE KEY-----\nMIIEvAIBAG9w...rxmClmOG==\n-----END PRIVATE KEY-----`.\
-**Note** that all line breaks in the **Private Key** should be replaced with the `\n` symbol. If you use the key pair provided with [examples](../examples), you can just copy the **Private Key** from the [Keys section](#keys) below.
-- Set the *GOOGLE_ISS* environment variable to the value of your **client_email** from [step 5](../examples/README.md#set-up-google-service-accounts).\
-The value should look like `example-serv-acc@example-project-256256.iam.gserviceaccount.com`.
-- Set the *GOOGLE_SECRET_KEY* environment variable to the value of your **private_key** from [step 5](../examples/README.md#set-up-google-service-accounts).\
-The value should look like\
-`-----BEGIN PRIVATE KEY-----\nMII ..... QbDgw==\n-----END PRIVATE KEY-----\n`.
-- For integration with [Travis](https://travis-ci.org), set the *EI_LOGIN_KEY* environment variable to a valid impCentral login key.
+Source code: [Telemetry.agent.nut](./Telemetry.agent.nut)
 
-## Run The Tests ##
+### Telemetry Example Set Up And Run ###
 
-- See the [impt Testing Guide](https://github.com/electricimp/imp-central-impt/blob/master/TestingGuide.md) to learn how to run these tests.
-- Run [impt](https://github.com/electricimp/imp-central-impt) commands from the root directory of the library. It contains a default test configuration file which should be updated by *impt* commands for your testing environment (at minimum, the Device Group should be updated).
+1. [Login to Google IoT Core](#login-to-google-iot-core).
+2. [Create an IoT Core Project](#create-an-iot-core-project) (if not created yet).
+3. [Create a Device Registry](#create-a-device-registry).
+4. [Set up Google Service Accounts](#set-up-google-service-accounts).
+5. [Set up your imp-enabled device](https://developer.electricimp.com/gettingstarted).
+6. In [Electric Imp's impCentral™ IDE](https://impcentral.electricimp.com) create a new Product and a new Development Device Group.
+7. Assign your imp-enabled device to the newly created Development Device Group.
+8. Copy the [example source code](./Telemetry.agent.nut) and paste it into impCentral’s code editor as the agent code.
+9. Set the constants in the agent code:
+    - *GOOGLE_IOT_CORE_PROJECT_ID*: set the value from the [step 2](#create-an-iot-core-project)
+    - *GOOGLE_IOT_CORE_CLOUD_REGION*: `us-central1`
+    - *GOOGLE_IOT_CORE_REGISTRY_ID*: `example-registry`
+    - *GOOGLE_IOT_CORE_DEVICE_ID*: `example-device_1` (this ID will be used when creating a new device)
+    - *GOOGLE_ISS* and *GOOGLE_SECRET_KEY*: set the values from the [step 4](#set-up-google-service-accounts)
+    - *PUBLIC_KEY_URL*: copy [this link](./keys/pub_key.pem?raw=true)
+    - *PRIVATE_KEY_URL*: copy [this link](./keys/priv_key.pem?raw=true)
 
-## Keys ##
+    **Note** You may generate and use your own public-private keys pair. Please read the [RSA Key Generation](#rsa-key-generation) section, below. After that, you should upload the keys to your server and set the links to the keys as *&#42;_KEY_URL* variables.
 
-<details><summary>Public Key (click to show)</summary>
-<p>
+    ![TelemetrySetConst](./example_imgs/TelemetrySetConst.png)
 
-`-----BEGIN CERTIFICATE-----\nMIIDGTCCAgGgAwIBAgIJAK5EhkcHwWb1MA0GCSqGSIb3DQEBBQUAMBExDzANBgNV\nBAMTBnVudXNlZDAgFw0xODA5MDcxMTM3MDFaGA8yMTk4MDIxMTExMzcwMVowETEP\nMA0GA1UEAxMGdW51c2VkMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA\nycEcxh8hLVIx6yUOVBhEicLV89bmLkezclrn0shRquQZYrvRnIFLKHEUE5k5H7J5\nsv9ddGI37h9sk1mVzDCsa3AQG0VwOqVh5r2zXUVCWJdh/PHJWDMyySVh0/IHxzYF\nqI1pkYjIRbvfJmcPQdG2kjI7QbMSOHxPN2X4tg3Zeobgm+bSMI0eAS+z+7E31YI5\nfkO/GAZEPujVa9E+O7OMenczvCc+ojUs7FsXfXln1ri6eIkiLz7FkzT38R1+YlGQ\n4mCAayJ68TbsQY0hTtJmX0ltRD4SY9Ntzm+LXU+6dIViiTJpou2kjvZlaxN8WcoN\nFOmWxu/tmdayif+NOt7TMwIDAQABo3IwcDAdBgNVHQ4EFgQUjy8ENT3Mwss6VKM6\n/SGaeh2Rv6cwQQYDVR0jBDowOIAUjy8ENT3Mwss6VKM6/SGaeh2Rv6ehFaQTMBEx\nDzANBgNVBAMTBnVudXNlZIIJAK5EhkcHwWb1MAwGA1UdEwQFMAMBAf8wDQYJKoZI\nhvcNAQEFBQADggEBADRlA4zYb/5jytJcFZrClW1LWnbJAH8j/g+a4skgHhG7x9GB\n7MUjd4reORmJZJe1GktQx5rcJPJKGYlDaOxwra8l+neA8asWcfJlYQte4sYd1OXf\nGx2Qw8h/rdt1WU95ftCSXu4UKI0dcubtiO35t+bcTLTf7464o9OAQbVLf9TESygD\nlOeEUfmVgebxzEef1+UYM5FRqMyQaS8vv1/HW/01Yc2+U/98kHkq3OWrLmDhKC7G\nKCWVJaf1rJJPDLYeEculd7KkVM+U7OU47pDT65qFrIVGWmfkAR7/O3hhYx7ndmUH\ny424YCQhMXKHN61vVGPf3cjOuUH3STsSlq9L4KY=\n-----END CERTIFICATE-----`
+10. Click **Build and Force Restart** in impCentral.
+11. Check the impCentral log that telemetry events are successfully being sent periodically from the device.
 
-</p>
-</details>
+    ![TelemetryLogs](./example_imgs/TelemetryRun.png)
 
-<details><summary>Private Key (click to show)</summary>
-<p>
+## Configuration And State Example ##
 
-`-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAycEcxh8hLVIx6yUOVBhEicLV89bmLkezclrn0shRquQZYrvR\nnIFLKHEUE5k5H7J5sv9ddGI37h9sk1mVzDCsa3AQG0VwOqVh5r2zXUVCWJdh/PHJ\nWDMyySVh0/IHxzYFqI1pkYjIRbvfJmcPQdG2kjI7QbMSOHxPN2X4tg3Zeobgm+bS\nMI0eAS+z+7E31YI5fkO/GAZEPujVa9E+O7OMenczvCc+ojUs7FsXfXln1ri6eIki\nLz7FkzT38R1+YlGQ4mCAayJ68TbsQY0hTtJmX0ltRD4SY9Ntzm+LXU+6dIViiTJp\nou2kjvZlaxN8WcoNFOmWxu/tmdayif+NOt7TMwIDAQABAoIBAQC1X/NjNTcZTExu\nLdkMxuhOxKadWLOEJZdwFcNVHhs1O2yK83iEb0PG7qly2QuesE9yGNrGN0o6u2tb\nqGzfrV5EE/GW4rz7LBSwYBgwoIP9qtI/mIo+zYA5jm69IFfXwnwhxEeEu2f4MOZy\n2rG/pS2xjpDxBnA58Z8xmW2XFSpPV/sX6clQcYv9mVFb9s4mGxVcjT2Smpp9LsOb\nEBVwJ7kTHSJUsCi2s/tUtE1yVlocrfMTSlRcvtRkzR7nJytX2fTCzyTFJmDUnBUd\nolAaAX7pghkp9ASWajOEaQrs5DdmgWRnPszG8dz2OXIjBAhQq+yu7u32Zh6Cnxcp\nuKl6qq7xAoGBAOsMLwcq5OfmxpiQSTMC9lwZCl1drgHiDy/KbQFiurN4vn6+2kjr\nc/fqVpyER0N3i3czqQe8mLH/EdcwFvmQYDV4qghf6mfIs+OloOxmGFw5TM4nrp0n\nogOaxQVNZLFMBQ66wOhowZawW8OOIx/XscKSpaM3JhKtHtAgpjRG1hY5AoGBANu9\nLCmUPfM8YRK9vabILHCtqJtiN34R0EngNKKOd0wzRIn3EDNaoIF3LiUTqItCWMnl\nfXeAiOp64ZwKYiaAQg9rEaBjAtSCvhNziZmoTcGAsenTRDqdEnt/Oq8N2Wbwiqxm\ncDN/ucCjsh/obTY/Hli45wBng3F7vkJ17uRKVNTLAoGBALZ5KPFJjZezAy5hpVIi\n1Js/HVrKZVI061FQtztCKGs4K7s98zx0/fzTQhYUYzavUehihLDq6ygUOwdx4AQy\n313jpS0HOXUEzRLH/JxJzlOacFQDXn3GzPI7bwTkxm0V9T8wIJ7M5K1VkIfKit4n\nl2rUah7Bq58II0m0bxNags2RAoGBAIcmDqd0GbYkiL/yG1cc/tg+ttj6y46qfiUx\n1K22WgFv9tO0NS6gqt914dfEA4HDSMDEeSqqz4sIEQLcEAoGEJtTCwBOZUs3Lpjg\nEt2C+m/tK3/ZBLnYKanzUrCgH/qEL4ZhatkB0cl95OxjE+itYYjIEKva/qkpppdR\n2aBnZ02JAoGAJjMK6sAJB/jaenGsaPmJYDC+UKz27wqG0Z4yn3NFUZi/U4gJuAo1\nGyhqdn8jPQfc5/tJ8eBQK9b2hxPP8QtBB88Xc8wFXXnn9mtLcvD+o01+VdXpGIa7\n5zM/fh/dVNzsFmcWyZhpMoYj+trkWrlECz0EIVQWM7LqcHuC02C0qYo=\n-----END RSA PRIVATE KEY-----`
+This is an example of a more production-oriented application. It has a design which may be used in real production code and includes additional comments with production-related hints.
 
-</p>
-</details>
+This application:
+
+- Assumes a device is already registered with Google IoT Core, eg. by a production server.
+- Uses the minimum settings required for the application initialization.
+- After the first start, downloads the application settings, eg. from a production server whose URL is hardcoded into the application (for simplicity, only a private key is downloaded from the URL; all other settings are hardcoded). After the first initialization, all settings may be stored by the device’s agent and then reloaded after the application is restarted. However, this has not been implemented here for simplicity.
+- Connects to Google IoT Core.
+- Enables the reception of Configuration data.
+- When a new Configuration is received from Google IoT Core, sends it to the imp-enabled device and waits for a new state report from the device. When the new state is received, sends it to Google IoT Core (for simplicity, communication with the device is not implemented).
+- Logs all errors and other significant events to the production server or other logging utility (for simplicity, the example only logs to impCentral). Signals some of the errors to the device, which can then display them (not implemented).
+
+This application does not demonstrate sending telemetry events to Google IoT Core. Please see the [telemetry Example](#telemetry-example) to see that feature in operation.
+
+Source code: [CfgState.agent.nut](./CfgState.agent.nut)
+
+### Configuration And State Example Set Up And Run ###
+
+1. [Login to Google IoT Core](#login-to-google-iot-core).
+2. [Create an IoT Core Project](#create-an-iot-core-project) (if not created yet).
+3. [Create a Device Registry](#create-a-device-registry).
+4. [Create a Device manually](#create-a-device) or re-use the device created by the [telemetry example](#telemetry-example-set-up-and-run) if you ran that example earlier.
+5. [Set up your imp-enabled device](https://developer.electricimp.com/gettingstarted).
+6. In [Electric Imp's impCentral IDE](https://impcentral.electricimp.com) create a new Product and a new Development Device Group.
+7. Assign your imp-enabled device to the newly created Development Device Group.
+8. Copy the [example source code](./CfgState.agent.nut) and paste it into impCentral’s code editor as the agent code.
+9. Set the constants in the agent code:
+    - *GOOGLE_IOT_CORE_PROJECT_ID*: set the value from the [step 2](#create-an-iot-core-project)
+    - *GOOGLE_IOT_CORE_CLOUD_REGION*: `us-central1`
+    - *GOOGLE_IOT_CORE_REGISTRY_ID*: `example-registry`
+    - *GOOGLE_IOT_CORE_DEVICE_ID*: set the value from the [step 4](#create-a-device)
+    - *PRIVATE_KEY_URL*: copy [this link](./keys/priv_key.pem?raw=true)
+ 
+    **Note** You may use other names, IDs, etc. when following the instructions in the Google IoT Console but make sure you set the constants to match your choices.
+
+    ![CfgStateSetConst](./example_imgs/CfgStateSetConst.png)
+
+10. Click **Build and Force Restart** in impCentral.
+11. Check the impCentral log that connection is established and that receiving configuration updates is enabled, and that the current configuration has been received - it is empty by default.
+
+    ![CfgStateLogs](./example_imgs/CfgStateRun.png)
+
+12. [Update the Device Configuration](#update-the-device-configuration) and check from the logs that the new configuration has been received.
+
+    ![CfgStateLogs](./example_imgs/CfgStateLogs.png)
+
+13. [Check the Device State](#check-device-state) and make sure that your device has set the latest STATE to the value you set in the previous step
+
+    ![CfgStateState](./example_imgs/CfgStateState.png)
+
+## General Google IoT Core Instructions ##
+
+### Login To Google IoT Core ###
+
+Open [Google IoT Core](https://cloud.google.com/iot-core/) and click **Sign in**. Then log in.
+If you have not yet created an account, do so now: click **Create account** and follow the instructions.
+
+After logging in, click **VIEW CONSOLE** to open the IoT Core Console.
+
+![View console](./example_imgs/ViewConsole.png)
+
+**Note** In the next steps you may need to use the free trial period of a paid subscription.
+
+### Create An IoT Core Project ###
+
+1. In the [Google Cloud Console](https://console.cloud.google.com/iot), click **Select a project > NEW PROJECT**:
+
+![Create IoT Core Project](./example_imgs/CreateProject1.png)
+
+![Create IoT Core Project](./example_imgs/CreateProject2.png)
+
+2. On the **New project** page, enter the following information for your new project:
+
+    - **Project name**: `example-project`.
+    - **Billing account**: choose your billing account.
+    - Make a note of your **Project ID**. It will be needed to set up and run your application.
+    - Click **Create**:
+
+    ![New project](./example_imgs/NewProject.png)
+
+### Create A Device Registry ###
+
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project and click **Enable API**:
+
+    ![Enable API](./example_imgs/EnableAPI.png)
+
+**Note** If you are getting an error such as `"Operation does not satisfy the following requirements: billing-enabled..."`, you will need to set up a paid subscription or free trial.
+
+2. Click **Create a device registry**:
+
+    ![Create a device registry](./example_imgs/CreateRegistry1.png)
+
+3. Enter the following information for your new registry:
+
+    - **Registry ID**: `example-registry`.
+    - **Region**: `us-central1`.
+    - **Default telemetry topic**: `telemetry`.
+    - **Default state topic**: `state`.
+    - Click **Create**:
+ 
+    ![Create a device registry](./example_imgs/CreateRegistry2.png)
+
+### Set Up Google Service Accounts ###
+
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project.
+2. Click **IAM & Admin**, then **Service Accounts** from the left-hand side menu:
+
+    ![ServiceAccounts](./example_imgs/ServiceAccounts.png)
+
+3. Click the **Create service account** button:
+
+    ![CreateServiceAccount](./example_imgs/CreateServiceAccount1.png)
+
+4. Enter a new service account name in the corresponding field: `example-serv-acc`.
+5. From the **Role** drop-down menu, select **Cloud IoT Provisioner**.
+6. Check the **Furnish a new private key** button. Leave all other checkboxes untouched.
+7. Click the **Save** button:
+
+    ![CreateServiceAccount](./example_imgs/CreateServiceAccount2.png)
+
+8. The file `<project name>-<random number>.json` will be downloaded to your computer. It will look something like this:
+
+    ```json
+    { "type": "service_account",
+      "project_id": "test-project",
+      "private_key_id": "27ed751da7f0cb605c02dafda6a5cf535e662aea",
+      "private_key": "-----BEGIN PRIVATE KEY-----\nMII ..... QbDgw==\n-----END PRIVATEKEY-----\n",
+      "client_email": "test-account@test-project.iam.gserviceaccount.com",
+      "client_id": "117467107027610486288",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://accounts.google.com/o/oauth2/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/test-account%40@test-project.iam.gserviceaccount.com" }
+    ```
+
+9. Make a note of **client_email** (it is *GOOGLE_ISS*) and **private_key** (it is *GOOGLE_SECRET_KEY*) from the downloaded JSON file. They will be needed to set up and run your application.
+
+### Create A Device ###
+
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project.
+2. Click on the registry you created in the previous steps:
+
+    ![OpenRegistry](./example_imgs/OpenRegistry.png)
+
+3. Click **Create device** and enter the following information for your new device:
+
+    - **Device ID**: `example-device_2`.
+    - **Public key format**: `RS256_X509`.
+    - **Public key value**: copy the public key from [here](./keys/pub_key.pem?raw=true).
+ 
+    **Note** You may generate and use your own public-private keys pair. Please read the [RSA Key Generation](#rsa-key-generation) section for more information.
+ 
+4. Click **Create**:
+
+    ![CreateDevice](./example_imgs/CreateDevice.png)
+
+### Update The Device Configuration ###
+
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project.
+2. Click on the registry you created in the previous steps:
+
+    ![OpenRegistry](./example_imgs/OpenRegistry.png)
+
+3. Click on the device the configuration of which you want to update:
+
+    ![OpenDevice](./example_imgs/OpenDevice.png)
+
+    **Note** If you don't have any devices, create one [manually](#create-a-device).
+
+4. Click **UPDATE CONFIG**, choose **Text** format and enter your new configuration:
+
+    ![UpdateConfig](./example_imgs/UpdateConfig.png)
+
+5. Click **SEND TO DEVICE**.
+
+### Check Device State ###
+
+1. On the [Google Cloud Console page](https://console.cloud.google.com/iot), choose your project.
+2. Click on the registry you created in the previous steps:
+
+    ![OpenRegistry](./example_imgs/OpenRegistry.png)
+
+3. Click on the device the state of which you want to check:
+
+    ![OpenDevice](./example_imgs/OpenDevice.png)
+
+    **Note** If you don't have any devices, create one [manually](#create-a-device).
+
+4. Open the **Configuration and state history** tab. Here you can see all the configuration and state updates:
+
+    ![ConfStateHistory](./example_imgs/ConfStateHistory.png)
+
+    **Note** By default, all items are shown in **Base64** format. You can also click on each item and choose **Text** format.
+
+### RSA Key Generation ###
+
+The Google IoT Core platform suggests [two formats of RSA public key](https://cloud.google.com/iot/docs/reference/cloudiot/rest/v1/projects.locations.registries.devices#publickeyformat):
+
+ - `RSA_PEM`
+ - `RSA_X509_PEM`
+
+The `RSA_X509_PEM` format is used by default in the [GoogleIoTCore library](../README.md) and in these examples. Keep in mind that keys of this type always have an expiration date. You can find an example showing how to generate such a key pair [here](https://cloud.google.com/iot/docs/how-tos/credentials/keys#generating_an_rs256_key_with_a_self-signed_x509_certificate).
+
+The `RSA_PEM` format is also supported by the [GoogleIoTCore library](../README.md). These keys don't have an expiration date. You can find an example showing how to generate such a key pair [here](https://cloud.google.com/iot/docs/how-tos/credentials/keys#generating_an_rs256_key).
