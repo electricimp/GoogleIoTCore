@@ -59,7 +59,7 @@ See [Configuration And State Example Setup and Run](#configuration-and-state-exa
  - *GOOGLE_IOT_CORE_PROJECT_ID*: set the value from the [step 2](#create-iot-core-project)
  - *GOOGLE_IOT_CORE_CLOUD_REGION*: `us-central1`
  - *GOOGLE_IOT_CORE_REGISTRY_ID*: `example-registry`
- - *GOOGLE_IOT_CORE_DEVICE_ID*: `example-device_1` (this ID will be used when creating a new device)
+ - *GOOGLE_IOT_CORE_DEVICE_ID*: `example-device` (this ID will be used when creating a new device)
  - *GOOGLE_ISS* and *GOOGLE_SECRET_KEY*: set the values from the [step 4](#setup-google-service-accounts)
  - *PUBLIC_KEY_URL*: copy [this link](./keys/pub_key.pem?raw=true)
  - *PRIVATE_KEY_URL*: copy [this link](./keys/priv_key.pem?raw=true)
@@ -84,7 +84,8 @@ See [Configuration And State Example Setup and Run](#configuration-and-state-exa
 
 3. [Create Device Registry](#create-device-registry)
 
-4. [Create Device Manually](#create-device) or re-use the device created by [Telemetry Example](#telemetry-example-setup-and-run) if you ran that example before
+4. Check if your device (`example-device`) is already registered. It may have been registered by the [Telemetry Example](#telemetry-example-setup-and-run). If not, [create device manually](#create-device).\
+If you have a registered device but want to run this example with another device, [create it manually](#create-device) with another Device ID.
 
 5. [Set up your Imp device](https://developer.electricimp.com/gettingstarted)
 
@@ -227,7 +228,7 @@ After logging in click **VIEW CONSOLE** to open the IoT Core Console.
 
 3. Click **Create device** and enter the following information for your new device:
 
- - **Device ID**: example-device_2
+ - **Device ID**: example-device
  - **Public key format**: RS256_X509
  - **Public key value**: copy the public key from [here](./keys/pub_key.pem?raw=true)
  
