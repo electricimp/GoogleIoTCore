@@ -69,7 +69,7 @@ Source code: [CfgState.agent.nut](./CfgState.agent.nut)
 1. [Login to Google IoT Core](#login-to-google-iot-core).
 2. [Create an IoT Core Project](#create-an-iot-core-project) (if not created yet).
 3. [Create a Device Registry](#create-a-device-registry).
-4. 4. Check if your device (`example-device`) is already registered. It may have been registered by the [Telemetry Example](#telemetry-example-set-up-and-run). If not, [create device manually](#create-a-device).\
+4. Check if your device (`example-device`) is already registered. It may have been registered by the [Telemetry Example](#telemetry-example-set-up-and-run). If not, [create device manually](#create-a-device).\
  If you have a registered device but want to run this example with another device, [create it manually](#create-a-device) with another Device ID.
 5. [Set up your imp-enabled device](https://developer.electricimp.com/gettingstarted).
 6. In [Electric Imp's impCentral IDE](https://impcentral.electricimp.com) create a new Product and a new Development Device Group.
