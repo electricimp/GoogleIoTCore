@@ -2,6 +2,8 @@
 
 This library allows your agent code to work with [Google IoT Core](https://cloud.google.com/iot-core/).
 
+**Note:** The Google IoT Core integration is currently in public Beta. Before proceeding, please sign up for access to the Google IoT Core integration using [this link](https://connect.electricimp.com/google-cloud-platform-integration-signup).
+
 This version of the library supports the following functionality:
 
 - [Registering a device](https://cloud.google.com/iot/docs/how-tos/getting-started#device_registration) in Google IoT Core (optional feature).
