@@ -36,6 +36,7 @@ Source code: [Telemetry.agent.nut](./Telemetry.agent.nut)
 
     **Note** You may generate and use your own public-private keys pair. Please read the [RSA Key Generation](#rsa-key-generation) section, below. After that, you should upload the keys to your server and set the links to the keys as *&#42;_KEY_URL* variables.
 
+
     ![TelemetrySetConst](./example_imgs/TelemetrySetConst.png)
 
 10. Click **Build and Force Restart** in impCentral.
@@ -181,6 +182,7 @@ After logging in, click **VIEW CONSOLE** to open the IoT Core Console.
     ```
 
 9. Make a note of **client_email** (it is *GOOGLE_ISS*) and **private_key** (it is *GOOGLE_SECRET_KEY*) from the downloaded JSON file. They will be needed to set up and run your application.
+
 
 ### Create A Device ###
 
