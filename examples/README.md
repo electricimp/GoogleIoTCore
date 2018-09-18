@@ -44,7 +44,7 @@ Source code: [Telemetry.agent.nut](./Telemetry.agent.nut)
 
     ![TelemetryLogs](./example_imgs/TelemetryRun.png)
 
-**Note**: If you are getting a device registration error, please read the **Note** in the [Setup Google Service Accounts](#setup-google-service-accounts) section.
+**Note**: If you are getting a device registration error, please read the **Note** in the [Setup Google Service Accounts](#set-up-google-service-accounts) section.
 
 ## Configuration And State Example ##
 
@@ -69,8 +69,8 @@ Source code: [CfgState.agent.nut](./CfgState.agent.nut)
 1. [Login to Google IoT Core](#login-to-google-iot-core).
 2. [Create an IoT Core Project](#create-an-iot-core-project) (if not created yet).
 3. [Create a Device Registry](#create-a-device-registry).
-4. 4. Check if your device (`example-device`) is already registered. It may have been registered by the [Telemetry Example](#telemetry-example-setup-and-run). If not, [create device manually](#create-device).\
- If you have a registered device but want to run this example with another device, [create it manually](#create-device) with another Device ID.
+4. 4. Check if your device (`example-device`) is already registered. It may have been registered by the [Telemetry Example](#telemetry-example-set-up-and-run). If not, [create device manually](#create-a-device).\
+ If you have a registered device but want to run this example with another device, [create it manually](#create-a-device) with another Device ID.
 5. [Set up your imp-enabled device](https://developer.electricimp.com/gettingstarted).
 6. In [Electric Imp's impCentral IDE](https://impcentral.electricimp.com) create a new Product and a new Development Device Group.
 7. Assign your imp-enabled device to the newly created Development Device Group.
