@@ -9,7 +9,7 @@ This is a basic example of a quick prototype, proof-of-concept or demo applicati
 This example:
 
 - Downloads public and private keys using provided URLs. All other configuration settings are hardcoded into the example's code. 
-- Registers a device (if not registered already) withe Google IoT Core using the library's optional *register()* method.
+- Registers a device (if not registered already) with Google IoT Core using the library's optional *register()* method.
 - Connects to Google IoT Core.
 - Sends telemetry events to Google IoT Core every eight seconds. Each event contains the current timestamp.
 
