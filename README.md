@@ -186,7 +186,7 @@ The library implements token updating, which is enabled by default. For MQTT con
 1. The library waits for all current MQTT operations to be completed.
 1. The library generates a new token using the current private key.
 1. The library disconnects from the MQTT broker.
-1. The library re-connects to the MQTT broker using the new token as thee MQTT client's password.
+1. The library re-connects to the MQTT broker using the new token as the MQTT client's password.
 1. The library subscribes to the topics to which it was subscribed before the reconnection.
 1. The library sets a new timer to fire just before the new token is due to expire.
 
