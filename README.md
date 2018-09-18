@@ -129,7 +129,7 @@ Tasks such as [publishing telemetry data](#publishing-telemetry), [reporting dev
 
 To connect a [GoogleIoTCore.Client](#googleiotcoreclient-class-usage) instance, call the [*connect()*](#connect) method. Google IoT Core supports only one connection per device.
 
-Your application can monitor a connection state using the [*isConnected()*](#isconnected) method, or the optional [*onConneced*](#callbacks) and [*onDisconnected*](#callbacks) callbacks. The callbacks may be specified in the [GoogleIoTCore.Client constructor](#constructor-googleiotcoreclientprojectid-cloudregion-registryid-deviceid-privatekey-onconnected-ondisconnected-transport-options) or set/reset later using the [*setOnConnected()*](#setonconnectedcallback) and/or [*setOnDisconnected()*](#setondisconnectedcallback) methods.
+Your application can monitor a connection state using the [*isConnected()*](#isconnected) method, or the optional [*onConnected*](#callbacks) and [*onDisconnected*](#callbacks) callbacks. The callbacks may be specified in the [GoogleIoTCore.Client constructor](#constructor-googleiotcoreclientprojectid-cloudregion-registryid-deviceid-privatekey-onconnected-ondisconnected-transport-options) or set/reset later using the [*setOnConnected()*](#setonconnectedcallback) and/or [*setOnDisconnected()*](#setondisconnectedcallback) methods.
 
 You can disconnect from Google IoT Core at any time by calling the [*disconnect()*](#disconnect) method, and reconnect by calling [*connect()*](#connect) again.
 
