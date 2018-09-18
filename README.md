@@ -518,7 +518,7 @@ This method [reports a device's state](https://cloud.google.com/iot/docs/how-tos
 
 #### onReported ####
 
-The *onReported* parameter takes a function that has two parameter of its own:
+The *onReported* parameter takes a function that has two parameters of its own:
 
 | Parameter | Data Type | Description |
 | --- | --- | --- |
