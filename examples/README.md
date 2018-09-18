@@ -44,6 +44,8 @@ Source code: [Telemetry.agent.nut](./Telemetry.agent.nut)
 
     ![TelemetryLogs](./example_imgs/TelemetryRun.png)
 
+**Note**: If you are getting a device registration error, please read the **Note** in the [Setup Google Service Accounts](#setup-google-service-accounts) section.
+
 ## Configuration And State Example ##
 
 This is an example of a more production-oriented application. It has a design which may be used in real production code and includes additional comments with production-related hints.
@@ -184,6 +186,7 @@ After logging in, click **VIEW CONSOLE** to open the IoT Core Console.
 
 9. Make a note of **client_email** (it is *GOOGLE_ISS*) and **private_key** (it is *GOOGLE_SECRET_KEY*) from the downloaded JSON file. They will be needed to set up and run your application.
 
+**Note**: If you are going to remove your service account and create it again **with the same name**, you should remove it from both **Service Accounts** and **IAM** tabs. And **only after that** you can create a new service account with the same name. Otherwise, you may face some errors during auto-registration of a device in the [Telemetry Example](#telemetry-example).
 
 ### Create A Device ###
 
