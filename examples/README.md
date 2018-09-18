@@ -2,6 +2,8 @@
 
 This document describes the example applications provided with the [GoogleIoTCore library](../README.md).
 
+**Note:** The Google IoT Core integration is currently in public Beta. Before proceeding, please sign up for access to the Google IoT Core integration using [this link](https://connect.electricimp.com/google-cloud-platform-integration-signup).
+
 ## Telemetry Example ##
 
 This is a basic example of a quick prototype, proof-of-concept or demo application. For an example of a more production-oriented application, please see the [Configuration And State Example](#configuration-and-state-example), below.
