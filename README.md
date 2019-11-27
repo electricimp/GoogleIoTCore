@@ -1,8 +1,6 @@
-# GoogleIoTCore #
+# GoogleIoTCore 1.0.0 #
 
 This library allows your agent code to work with [Google IoT Core](https://cloud.google.com/iot-core/).
-
-**Note:** The Google IoT Core integration is currently in public Beta. Before proceeding, please sign up for access to the Google IoT Core integration using [this link](https://connect.electricimp.com/google-cloud-platform-integration-signup).
 
 This version of the library supports the following functionality:
 
@@ -151,7 +149,7 @@ function onConnected(err) {
         server.error("Connect failed: " + err);
         return;
     }
-    
+
     server.log("Connected");
     // Here is a good place to enable configuration reception
 }
@@ -159,7 +157,7 @@ function onConnected(err) {
 function onDisconnected(err) {
     if (err != 0) {
         server.error("Disconnected unexpectedly with code: " + err);
-        
+
         // Reconnect if disconnection was not initiated by the application
         client.connect();
     } else {
@@ -221,7 +219,7 @@ client.publish("some data", null);
 function onPublished(data, err) {
     if (err != 0) {
         server.error("Publish telemetry error: code = " + err);
-        
+
         // Trying to publish again in case of any error
         client.publish("some data", null, onPublished);
         return;
@@ -478,7 +476,7 @@ Nothing. The result of the operation may be obtained via the *onPublished* callb
 
 ### enableCfgReceiving(*onReceive[, onDone]*) ###
 
-This method enables/disables [the reception of configuration data from Google IoT Core](https://cloud.google.com/iot/docs/how-tos/config/configuring-devices). It is disabled by default and after every successful call to [*connect()*](#connect). 
+This method enables/disables [the reception of configuration data from Google IoT Core](https://cloud.google.com/iot/docs/how-tos/config/configuring-devices). It is disabled by default and after every successful call to [*connect()*](#connect).
 
 To enable the feature, specify the [*onReceive*](#onreceive) callback. To disable the feature, pass `null` as that callback.
 
@@ -533,7 +531,7 @@ Nothing. The result of the operation may be obtained via the [*onReported* callb
 
 #### setDebug(*value*) ####
 
-This method enables (*value* is `true`) or disables (*value* is `false`) the client debug output (including error logging). It is disabled by default. 
+This method enables (*value* is `true`) or disables (*value* is `false`) the client debug output (including error logging). It is disabled by default.
 
 #### Return Value ####
 
